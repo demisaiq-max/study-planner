@@ -250,18 +250,15 @@ export default function HomeScreen() {
                     !isVisible && styles.subjectGradeHidden,
                     isSelected && styles.subjectGradeSelected
                   ]}>
-                    {gradeValue ? `${grade}${t('gradeUnit')}` : grade}
+                    {gradeValue ? `${grade} ${t('gradeUnit')}` : grade}
                   </Text>
-                  {isVisible && (
-                    <View style={[styles.subjectIndicator, isSelected && styles.subjectIndicatorSelected]} />
-                  )}
+                  {isVisible && <View style={[styles.subjectIndicator, isSelected && styles.subjectIndicatorSelected]} />}
                 </TouchableOpacity>
               );
             })}
-            
             <TouchableOpacity style={styles.expectedGradeCard}>
               <Text style={styles.expectedGradeText}>{t('expectedGrade')}</Text>
-              <Text style={styles.expectedGradeValue}>2{t('gradeUnit')}</Text>
+              <Text style={styles.expectedGradeValue}>2 {t('gradeUnit')}</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
