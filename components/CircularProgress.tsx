@@ -9,6 +9,8 @@ interface CircularProgressProps {
   color?: string;
   showMultipleRings?: boolean;
   centerText?: string;
+  selectedSubject?: string | null;
+  subjectGrades?: Record<string, number>;
 }
 
 export default function CircularProgress({ 
@@ -17,15 +19,29 @@ export default function CircularProgress({
   strokeWidth,
   color = "#007AFF",
   showMultipleRings = false,
-  centerText
+  centerText,
+  selectedSubject,
+  subjectGrades
 }: CircularProgressProps) {
   if (showMultipleRings) {
-    const ringSpacing = strokeWidth + 8;
-    const rings = [
-      { radius: (size - strokeWidth) / 2, percentage: 75, color: "#34C759" },
-      { radius: (size - strokeWidth) / 2 - ringSpacing, percentage: 60, color: "#FF9500" },
-      { radius: (size - strokeWidth) / 2 - ringSpacing * 2, percentage: 45, color: "#FF3B30" }
-    ];
+    const ringSpacing = strokeWidth + 6;
+    
+    let rings;
+    if (selectedSubject && subjectGrades) {
+      const grade = subjectGrades[selectedSubject] || 1;
+      const gradePercentage = ((6 - grade) / 5) * 100;
+      rings = [
+        { radius: (size - strokeWidth) / 2, percentage: gradePercentage, color: grade <= 2 ? "#34C759" : grade <= 3 ? "#FF9500" : "#FF3B30" },
+        { radius: (size - strokeWidth) / 2 - ringSpacing, percentage: gradePercentage * 0.8, color: grade <= 2 ? "#34C759" : grade <= 3 ? "#FF9500" : "#FF3B30" },
+        { radius: (size - strokeWidth) / 2 - ringSpacing * 2, percentage: gradePercentage * 0.6, color: grade <= 2 ? "#34C759" : grade <= 3 ? "#FF9500" : "#FF3B30" }
+      ];
+    } else {
+      rings = [
+        { radius: (size - strokeWidth) / 2, percentage: 80, color: "#34C759" },
+        { radius: (size - strokeWidth) / 2 - ringSpacing, percentage: 65, color: "#FF9500" },
+        { radius: (size - strokeWidth) / 2 - ringSpacing * 2, percentage: 50, color: "#FF3B30" }
+      ];
+    }
 
     return (
       <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
@@ -41,7 +57,7 @@ export default function CircularProgress({
                   cy={size / 2}
                   r={ring.radius}
                   stroke="#E5E5EA"
-                  strokeWidth={strokeWidth - 2}
+                  strokeWidth={strokeWidth - 1}
                   fill="none"
                 />
                 <Circle
@@ -49,7 +65,7 @@ export default function CircularProgress({
                   cy={size / 2}
                   r={ring.radius}
                   stroke={ring.color}
-                  strokeWidth={strokeWidth - 2}
+                  strokeWidth={strokeWidth - 1}
                   fill="none"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}

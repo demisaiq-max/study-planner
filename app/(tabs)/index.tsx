@@ -54,6 +54,7 @@ export default function HomeScreen() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [isPriority, setIsPriority] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -164,23 +165,27 @@ export default function HomeScreen() {
           <Text style={styles.timerTitle}>{t('timerTitle')}</Text>
           
           <View style={styles.progressSection}>
-            <View style={styles.progressContainer}>
-              <CircularProgress 
-                percentage={progressPercentage}
-                size={140}
-                strokeWidth={8}
-                showMultipleRings={true}
-                centerText="2"
-              />
-              <View style={styles.progressInfo}>
-                <Text style={styles.progressLabel}>{t('currentGrade')}</Text>
-              </View>
+            <View style={styles.leftTextContainer}>
+              <Text style={styles.leftText}>{user?.name || '아구몬'}님의</Text>
+              <Text style={styles.leftText}>현재 성적</Text>
             </View>
             
-            <TouchableOpacity style={styles.averageButton}>
-              <Text style={styles.averageLabel}>2</Text>
-              <Text style={styles.averageValue}>{t('averageGrade')}</Text>
-            </TouchableOpacity>
+            <View style={styles.centerRingsContainer}>
+              <CircularProgress 
+                percentage={progressPercentage}
+                size={120}
+                strokeWidth={6}
+                showMultipleRings={true}
+                centerText={selectedSubject ? (subjectGrades?.[selectedSubject]?.toString() || "미정") : "2"}
+                selectedSubject={selectedSubject}
+                subjectGrades={subjectGrades}
+              />
+            </View>
+            
+            <View style={styles.rightTextContainer}>
+              <Text style={styles.rightTextLarge}>2</Text>
+              <Text style={styles.rightText}>평균 등급</Text>
+            </View>
           </View>
         </View>
 
@@ -199,21 +204,40 @@ export default function HomeScreen() {
               const isVisible = currentVisibleSubjects.includes(subject);
               const gradeValue = subjectGrades?.[subject];
               const grade = gradeValue ? gradeValue.toString() : t('undetermined');
+              const isSelected = selectedSubject === subject;
               
               return (
                 <TouchableOpacity 
                   key={subject}
-                  style={[styles.subjectCard, !isVisible && styles.subjectCardHidden]}
-                  onPress={() => toggleSubjectVisibility(subject)}
+                  style={[
+                    styles.subjectCard, 
+                    !isVisible && styles.subjectCardHidden,
+                    isSelected && styles.subjectCardSelected
+                  ]}
+                  onPress={() => {
+                    if (currentVisibleSubjects.includes(subject)) {
+                      setSelectedSubject(isSelected ? null : subject);
+                    } else {
+                      toggleSubjectVisibility(subject);
+                    }
+                  }}
                 >
-                  <Text style={[styles.subjectName, !isVisible && styles.subjectNameHidden]}>
+                  <Text style={[
+                    styles.subjectName, 
+                    !isVisible && styles.subjectNameHidden,
+                    isSelected && styles.subjectNameSelected
+                  ]}>
                     {t(subject.toLowerCase())}
                   </Text>
-                  <Text style={[styles.subjectGrade, !isVisible && styles.subjectGradeHidden]}>
+                  <Text style={[
+                    styles.subjectGrade, 
+                    !isVisible && styles.subjectGradeHidden,
+                    isSelected && styles.subjectGradeSelected
+                  ]}>
                     {gradeValue ? `${grade}${t('gradeUnit')}` : grade}
                   </Text>
                   {isVisible && (
-                    <View style={styles.subjectIndicator} />
+                    <View style={[styles.subjectIndicator, isSelected && styles.subjectIndicatorSelected]} />
                   )}
                 </TouchableOpacity>
               );
@@ -536,38 +560,39 @@ const styles = StyleSheet.create({
   },
   progressSection: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 10,
   },
-  progressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  leftTextContainer: {
+    flex: 1,
+    alignItems: "flex-start",
   },
-  progressInfo: {
-    marginLeft: 20,
-  },
-  progressLabel: {
-    fontSize: 14,
+  leftText: {
+    fontSize: 16,
+    fontWeight: "600",
     color: "#000000",
-    marginBottom: 2,
+    lineHeight: 20,
   },
-  averageButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#F2F2F7",
-    justifyContent: "center",
+  centerRingsContainer: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
-  averageLabel: {
-    fontSize: 18,
+  rightTextContainer: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  rightTextLarge: {
+    fontSize: 32,
     fontWeight: "bold",
-    color: "#007AFF",
-    marginBottom: 4,
+    color: "#000000",
+    lineHeight: 36,
   },
-  averageValue: {
-    fontSize: 12,
+  rightText: {
+    fontSize: 14,
     color: "#8E8E93",
+    marginTop: 4,
   },
   dDaySection: {
     marginTop: 20,
@@ -791,6 +816,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F2F7",
     borderColor: "#E5E5EA",
   },
+  subjectCardSelected: {
+    backgroundColor: "#E8F3FF",
+    borderColor: "#007AFF",
+    borderWidth: 3,
+  },
   subjectName: {
     fontSize: 14,
     fontWeight: "600",
@@ -800,6 +830,10 @@ const styles = StyleSheet.create({
   subjectNameHidden: {
     color: "#8E8E93",
   },
+  subjectNameSelected: {
+    color: "#007AFF",
+    fontWeight: "700",
+  },
   subjectGrade: {
     fontSize: 12,
     color: "#007AFF",
@@ -807,12 +841,22 @@ const styles = StyleSheet.create({
   subjectGradeHidden: {
     color: "#8E8E93",
   },
+  subjectGradeSelected: {
+    color: "#007AFF",
+    fontWeight: "600",
+  },
   subjectIndicator: {
     width: 4,
     height: 4,
     borderRadius: 2,
     backgroundColor: "#007AFF",
     marginTop: 4,
+  },
+  subjectIndicatorSelected: {
+    backgroundColor: "#007AFF",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   expectedGradeCard: {
     backgroundColor: "#007AFF",
