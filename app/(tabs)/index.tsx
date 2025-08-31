@@ -176,8 +176,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-
-        
         {/* Study Progress Card */}
         <View style={styles.timerCard}>
           <Text style={styles.timerTitle}>{t('timerTitle')}</Text>
