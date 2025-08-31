@@ -195,7 +195,8 @@ export default function HomeScreen() {
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectsScroll}>
             {subjects?.map((subject) => {
-              const isVisible = visibleSubjects?.includes(subject) ?? true;
+              const currentVisibleSubjects = visibleSubjects || [];
+              const isVisible = currentVisibleSubjects.includes(subject);
               const gradeValue = subjectGrades?.[subject];
               const grade = gradeValue ? gradeValue.toString() : t('undetermined');
               

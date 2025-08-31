@@ -131,9 +131,10 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
   }, [data]);
 
   const toggleSubjectVisibility = useCallback((subject: string) => {
-    const updatedVisibleSubjects = data.visibleSubjects.includes(subject)
-      ? data.visibleSubjects.filter(s => s !== subject)
-      : [...data.visibleSubjects, subject];
+    const currentVisibleSubjects = data.visibleSubjects || [];
+    const updatedVisibleSubjects = currentVisibleSubjects.includes(subject)
+      ? currentVisibleSubjects.filter(s => s !== subject)
+      : [...currentVisibleSubjects, subject];
     saveData({ ...data, visibleSubjects: updatedVisibleSubjects });
   }, [data]);
 
