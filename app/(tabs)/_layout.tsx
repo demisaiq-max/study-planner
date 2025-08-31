@@ -1,8 +1,11 @@
 import { Tabs } from "expo-router";
 import { Home, Clock, BookOpen, BarChart3, Users } from "lucide-react-native";
 import React from "react";
+import { useLanguage } from "@/hooks/language-context";
 
 export default function TabLayout() {
+  const { t } = useLanguage();
+  
   return (
     <Tabs
       screenOptions={{
@@ -26,35 +29,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "홈",
+          title: t('home') || '홈',
           tabBarIcon: ({ color, size }) => <Home size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="timer"
         options={{
-          title: "타이머",
+          title: t('timer') || '타이머',
           tabBarIcon: ({ color, size }) => <Clock size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notes"
         options={{
-          title: "목록",
+          title: t('notes') || '목록',
           tabBarIcon: ({ color, size }) => <BookOpen size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
-          title: "성적관리",
+          title: t('stats') || '성적관리',
           tabBarIcon: ({ color, size }) => <BarChart3 size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
-          title: "커뮤니티",
+          title: t('community') || '커뮤니티',
           tabBarIcon: ({ color, size }) => <Users size={24} color={color} />,
         }}
       />

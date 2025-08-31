@@ -13,11 +13,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, User, X, Calendar, ChevronDown, Check } from "lucide-react-native";
+import { router } from "expo-router";
 import CircularProgress from "@/components/CircularProgress";
 import DayCard from "@/components/DayCard";
 import CalendarWidget from "@/components/CalendarWidget";
 import TaskItem from "@/components/TaskItem";
 import { useStudyStore } from "@/hooks/study-store";
+import { useUser } from "@/hooks/user-context";
+import { useLanguage } from "@/hooks/language-context";
 
 const { width } = Dimensions.get("window");
 
@@ -40,6 +43,8 @@ export default function HomeScreen() {
     removePriorityTask,
     isLoading
   } = useStudyStore();
+  const { user } = useUser();
+  const { t } = useLanguage();
   
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showAddExamModal, setShowAddExamModal] = useState(false);
@@ -63,7 +68,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>로딩 중...</Text>
+          <Text style={styles.loadingText}>{t('loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -71,7 +76,7 @@ export default function HomeScreen() {
 
   const handleAddExam = () => {
     if (!newExamTitle.trim() || !newExamDate.trim()) {
-      Alert.alert("오류", "시험명과 날짜를 모두 입력해주세요.");
+      Alert.alert(t('error'), t('examFormError'));
       return;
     }
 
@@ -81,7 +86,7 @@ export default function HomeScreen() {
     const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
     if (daysLeft < 0) {
-      Alert.alert("오류", "미래 날짜를 입력해주세요.");
+      Alert.alert(t('error'), t('futureDateError'));
       return;
     }
 
@@ -98,12 +103,12 @@ export default function HomeScreen() {
 
   const handleAddTask = () => {
     if (!newTaskTitle.trim()) {
-      Alert.alert("오류", "일정 제목을 입력해주세요.");
+      Alert.alert(t('error'), t('taskTitleError'));
       return;
     }
 
     if (isPriority && (priorityTasks?.length || 0) >= 3) {
-      Alert.alert("오류", "우선순위는 최대 3개까지만 설정할 수 있습니다.");
+      Alert.alert(t('error'), t('priorityLimitError'));
       return;
     }
 
@@ -138,17 +143,17 @@ export default function HomeScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.profileSection}>
+          <TouchableOpacity 
+            style={styles.profileSection}
+            onPress={() => router.push('/settings')}
+          >
             <View style={styles.avatar}>
               <User size={24} color="#8E8E93" />
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.examType}>대학수학능력시험</Text>
-              <Text style={styles.userName}>학구몬</Text>
+              <Text style={styles.examType}>{t('examType')}</Text>
+              <Text style={styles.userName}>{user?.name || t('userName')}</Text>
             </View>
-          </View>
-          <TouchableOpacity style={styles.addButton}>
-            <Plus size={20} color="#007AFF" />
           </TouchableOpacity>
         </View>
 
@@ -156,7 +161,7 @@ export default function HomeScreen() {
         
         {/* Study Progress Card */}
         <View style={styles.timerCard}>
-          <Text style={styles.timerTitle}>실시간 모의고사 채점하기</Text>
+          <Text style={styles.timerTitle}>{t('timerTitle')}</Text>
           
           <View style={styles.progressSection}>
             <View style={styles.progressContainer}>
@@ -168,14 +173,13 @@ export default function HomeScreen() {
                 centerText="2"
               />
               <View style={styles.progressInfo}>
-                <Text style={styles.progressLabel}>아구몬님의</Text>
-                <Text style={styles.progressLabel}>현재 성적</Text>
+                <Text style={styles.progressLabel}>{t('currentGrade')}</Text>
               </View>
             </View>
             
             <TouchableOpacity style={styles.averageButton}>
-              <Text style={styles.averageLabel}>아구</Text>
-              <Text style={styles.averageValue}>평균 등급</Text>
+              <Text style={styles.averageLabel}>2</Text>
+              <Text style={styles.averageValue}>{t('averageGrade')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -183,16 +187,17 @@ export default function HomeScreen() {
         {/* Subject Grades Section */}
         <View style={styles.subjectsCard}>
           <View style={styles.subjectsHeader}>
-            <Text style={styles.subjectsTitle}>과목별 성적</Text>
+            <Text style={styles.subjectsTitle}>{t('subjectsTitle')}</Text>
             <TouchableOpacity>
-              <Text style={styles.editButton}>편집</Text>
+              <Text style={styles.editButton}>{t('editButton')}</Text>
             </TouchableOpacity>
           </View>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subjectsScroll}>
             {subjects?.map((subject) => {
               const isVisible = visibleSubjects?.includes(subject) ?? true;
-              const grade = subjectGrades?.[subject] || "미정";
+              const gradeValue = subjectGrades?.[subject];
+              const grade = gradeValue ? gradeValue.toString() : t('undetermined');
               
               return (
                 <TouchableOpacity 
@@ -201,10 +206,10 @@ export default function HomeScreen() {
                   onPress={() => toggleSubjectVisibility(subject)}
                 >
                   <Text style={[styles.subjectName, !isVisible && styles.subjectNameHidden]}>
-                    {subject}
+                    {t(subject.toLowerCase())}
                   </Text>
                   <Text style={[styles.subjectGrade, !isVisible && styles.subjectGradeHidden]}>
-                    {grade}등급
+                    {gradeValue ? `${grade}${t('gradeUnit')}` : grade}
                   </Text>
                   {isVisible && (
                     <View style={styles.subjectIndicator} />
@@ -214,8 +219,8 @@ export default function HomeScreen() {
             })}
             
             <TouchableOpacity style={styles.expectedGradeCard}>
-              <Text style={styles.expectedGradeText}>예상등급</Text>
-              <Text style={styles.expectedGradeValue}>2등급</Text>
+              <Text style={styles.expectedGradeText}>{t('expectedGrade')}</Text>
+              <Text style={styles.expectedGradeValue}>2{t('gradeUnit')}</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -245,7 +250,7 @@ export default function HomeScreen() {
         {/* Priority Tasks */}
         <View style={styles.tasksSection}>
           <View style={styles.taskHeader}>
-            <Text style={styles.taskTitle}>우선 순위 3가지</Text>
+            <Text style={styles.taskTitle}>{t('priorityTasksTitle')}</Text>
             <TouchableOpacity onPress={() => setShowAddTaskModal(true)}>
               <Plus size={20} color="#8E8E93" />
             </TouchableOpacity>
@@ -273,7 +278,7 @@ export default function HomeScreen() {
             
             {(!priorityTasks || priorityTasks.length === 0) && (
               <View style={styles.emptyPriorityTasks}>
-                <Text style={styles.emptyPriorityText}>우선순위 일정을 추가해보세요</Text>
+                <Text style={styles.emptyPriorityText}>{t('emptyPriorityText')}</Text>
               </View>
             )}
           </View>
@@ -281,11 +286,11 @@ export default function HomeScreen() {
 
         {/* Study Goals */}
         <View style={styles.goalsSection}>
-          <Text style={styles.goalsTitle}>모든 생각 쏟아내기</Text>
+          <Text style={styles.goalsTitle}>{t('goalsTitle')}</Text>
           
           <View style={styles.goalCard}>
             <View style={styles.goalHeader}>
-              <Text style={styles.goalLabel}>아침 조정하기</Text>
+              <Text style={styles.goalLabel}>{t('morningAdjustment')}</Text>
               <Text style={styles.goalBadge}>V</Text>
             </View>
           </View>
@@ -315,9 +320,9 @@ export default function HomeScreen() {
             <TouchableOpacity onPress={() => setShowAddExamModal(false)}>
               <X size={24} color="#8E8E93" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>새 시험 추가</Text>
+            <Text style={styles.modalTitle}>{t('addExamTitle')}</Text>
             <TouchableOpacity onPress={handleAddExam}>
-              <Text style={styles.saveButton}>저장</Text>
+              <Text style={styles.saveButton}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -328,32 +333,32 @@ export default function HomeScreen() {
           >
             <View style={styles.modalContent}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>시험명</Text>
+                <Text style={styles.inputLabel}>{t('examName')}</Text>
                 <TextInput
                   style={styles.textInput}
                   value={newExamTitle}
                   onChangeText={setNewExamTitle}
-                  placeholder="예: 중간고사, 모의고사 등"
+                  placeholder={t('examNamePlaceholder')}
                   placeholderTextColor="#8E8E93"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>시험 날짜</Text>
+                <Text style={styles.inputLabel}>{t('examDate')}</Text>
                 <TextInput
                   style={styles.textInput}
                   value={newExamDate}
                   onChangeText={setNewExamDate}
-                  placeholder="YYYY.MM.DD 형식으로 입력"
+                  placeholder={t('examDatePlaceholder')}
                   placeholderTextColor="#8E8E93"
                 />
               </View>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>시험 설명 (선택사항)</Text>
+                <Text style={styles.inputLabel}>{t('examDescription')}</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea]}
-                  placeholder="시험에 대한 추가 정보를 입력하세요"
+                  placeholder={t('examDescPlaceholder')}
                   placeholderTextColor="#8E8E93"
                   multiline
                   numberOfLines={4}
@@ -361,16 +366,16 @@ export default function HomeScreen() {
               </View>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>중요도</Text>
+                <Text style={styles.inputLabel}>{t('importance')}</Text>
                 <View style={styles.priorityButtons}>
                   <TouchableOpacity style={[styles.priorityButton, styles.priorityHigh]}>
-                    <Text style={styles.priorityButtonText}>높음</Text>
+                    <Text style={styles.priorityButtonText}>{t('high')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.priorityButton, styles.priorityMedium]}>
-                    <Text style={styles.priorityButtonText}>보통</Text>
+                    <Text style={styles.priorityButtonText}>{t('medium')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.priorityButton, styles.priorityLow]}>
-                    <Text style={styles.priorityButtonText}>낮음</Text>
+                    <Text style={styles.priorityButtonText}>{t('low')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -391,9 +396,9 @@ export default function HomeScreen() {
             <TouchableOpacity onPress={() => setShowAddTaskModal(false)}>
               <X size={24} color="#8E8E93" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>일정 등록</Text>
+            <Text style={styles.modalTitle}>{t('addTaskTitle')}</Text>
             <TouchableOpacity onPress={handleAddTask}>
-              <Text style={styles.saveButton}>저장</Text>
+              <Text style={styles.saveButton}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -404,23 +409,23 @@ export default function HomeScreen() {
           >
             <View style={styles.modalContent}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>일정 제목</Text>
+                <Text style={styles.inputLabel}>{t('taskTitle')}</Text>
                 <TextInput
                   style={styles.textInput}
                   value={newTaskTitle}
                   onChangeText={setNewTaskTitle}
-                  placeholder="일정 제목을 입력하세요"
+                  placeholder={t('taskTitlePlaceholder')}
                   placeholderTextColor="#8E8E93"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>설명 (선택사항)</Text>
+                <Text style={styles.inputLabel}>{t('description')}</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea]}
                   value={newTaskDescription}
                   onChangeText={setNewTaskDescription}
-                  placeholder="일정에 대한 추가 설명을 입력하세요"
+                  placeholder={t('taskDescPlaceholder')}
                   placeholderTextColor="#8E8E93"
                   multiline
                   numberOfLines={3}
@@ -432,7 +437,7 @@ export default function HomeScreen() {
                   style={styles.priorityCheckboxContainer}
                   onPress={() => {
                     if ((priorityTasks?.length || 0) >= 3 && !isPriority) {
-                      Alert.alert("알림", "우선순위는 최대 3개까지만 설정할 수 있습니다.");
+                      Alert.alert(t('notification'), t('priorityLimitError'));
                       return;
                     }
                     setIsPriority(!isPriority);
@@ -442,7 +447,7 @@ export default function HomeScreen() {
                     {isPriority && <Check size={14} color="#FFFFFF" />}
                   </View>
                   <Text style={styles.priorityCheckboxLabel}>
-                    우선순위로 설정 ({priorityTasks?.length || 0}/3)
+                    {t('setPriority')} ({priorityTasks?.length || 0}/3)
                   </Text>
                 </TouchableOpacity>
               </View>
