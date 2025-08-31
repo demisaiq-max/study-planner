@@ -85,7 +85,17 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setData(JSON.parse(stored));
+        const parsedData = JSON.parse(stored);
+        // Ensure all required properties exist
+        const mergedData = {
+          ...defaultData,
+          ...parsedData,
+          priorityTasks: parsedData.priorityTasks || [],
+          visibleSubjects: parsedData.visibleSubjects || defaultData.visibleSubjects,
+          subjects: parsedData.subjects || defaultData.subjects,
+          subjectGrades: parsedData.subjectGrades || defaultData.subjectGrades,
+        };
+        setData(mergedData);
       }
     } catch (error) {
       console.error("Failed to load study data:", error);
@@ -139,12 +149,14 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
   }, [data]);
 
   const addPriorityTask = useCallback((task: PriorityTask) => {
-    if (data.priorityTasks.length >= 3) return;
-    saveData({ ...data, priorityTasks: [...data.priorityTasks, task] });
+    const currentPriorityTasks = data.priorityTasks || [];
+    if (currentPriorityTasks.length >= 3) return;
+    saveData({ ...data, priorityTasks: [...currentPriorityTasks, task] });
   }, [data]);
 
   const removePriorityTask = useCallback((index: number) => {
-    const updatedPriorityTasks = data.priorityTasks.filter((_, i) => i !== index);
+    const currentPriorityTasks = data.priorityTasks || [];
+    const updatedPriorityTasks = currentPriorityTasks.filter((_, i) => i !== index);
     saveData({ ...data, priorityTasks: updatedPriorityTasks });
   }, [data]);
 
