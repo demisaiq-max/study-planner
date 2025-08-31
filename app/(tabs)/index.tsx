@@ -196,7 +196,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Subject Grades Section */}
         <View style={styles.subjectsCard}>
           <View style={styles.subjectsHeader}>
             <Text style={styles.subjectsTitle}>{t('subjectsTitle')}</Text>
