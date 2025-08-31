@@ -18,6 +18,13 @@ interface PriorityTask {
   description?: string;
 }
 
+interface BrainDumpItem {
+  id: string;
+  title: string;
+  completed: boolean;
+  createdAt: string;
+}
+
 interface DDay {
   id: string;
   title: string;
@@ -36,6 +43,7 @@ interface StudyData {
   subjectGrades: Record<string, number>;
   visibleSubjects: string[];
   priorityTasks: PriorityTask[];
+  brainDumpItems: BrainDumpItem[];
 }
 
 const STORAGE_KEY = "focusflow_study_data";
@@ -71,6 +79,17 @@ const defaultData: StudyData = {
     { title: "2025년 6월 모의고사 풀기" },
     { title: "학원가기" }
   ],
+  brainDumpItems: [
+    { id: "1", title: "Morning Adjustment", completed: false, createdAt: new Date().toISOString() },
+    { id: "2", title: "자이스토리 325p까지 풀기", completed: false, createdAt: new Date().toISOString() },
+    { id: "3", title: "ebs 수능특강 강의 듣기", completed: false, createdAt: new Date().toISOString() },
+    { id: "4", title: "ebs 수능특강 강의 듣기", completed: false, createdAt: new Date().toISOString() },
+    { id: "5", title: "ebs 수능특강 강의 듣기", completed: false, createdAt: new Date().toISOString() },
+    { id: "6", title: "vfdv", completed: false, createdAt: new Date().toISOString() },
+    { id: "7", title: "dsf", completed: false, createdAt: new Date().toISOString() },
+    { id: "8", title: "dfg", completed: false, createdAt: new Date().toISOString() },
+    { id: "9", title: "gdfgdf", completed: false, createdAt: new Date().toISOString() }
+  ],
 };
 
 export const [StudyProvider, useStudyStore] = createContextHook(() => {
@@ -94,6 +113,7 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
           visibleSubjects: parsedData.visibleSubjects || defaultData.visibleSubjects,
           subjects: parsedData.subjects || defaultData.subjects,
           subjectGrades: parsedData.subjectGrades || defaultData.subjectGrades,
+          brainDumpItems: parsedData.brainDumpItems || defaultData.brainDumpItems,
         };
         setData(mergedData);
       }
@@ -160,6 +180,39 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     saveData({ ...data, priorityTasks: updatedPriorityTasks });
   }, [data]);
 
+  const addBrainDumpItem = useCallback((title: string) => {
+    const newItem: BrainDumpItem = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+    const currentItems = data.brainDumpItems || [];
+    saveData({ ...data, brainDumpItems: [...currentItems, newItem] });
+  }, [data]);
+
+  const updateBrainDumpItem = useCallback((id: string, title: string) => {
+    const currentItems = data.brainDumpItems || [];
+    const updatedItems = currentItems.map(item =>
+      item.id === id ? { ...item, title } : item
+    );
+    saveData({ ...data, brainDumpItems: updatedItems });
+  }, [data]);
+
+  const deleteBrainDumpItem = useCallback((id: string) => {
+    const currentItems = data.brainDumpItems || [];
+    const updatedItems = currentItems.filter(item => item.id !== id);
+    saveData({ ...data, brainDumpItems: updatedItems });
+  }, [data]);
+
+  const toggleBrainDumpItem = useCallback((id: string) => {
+    const currentItems = data.brainDumpItems || [];
+    const updatedItems = currentItems.map(item =>
+      item.id === id ? { ...item, completed: !item.completed } : item
+    );
+    saveData({ ...data, brainDumpItems: updatedItems });
+  }, [data]);
+
   return useMemo(() => ({
     ...data,
     isLoading,
@@ -170,5 +223,9 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     toggleSubjectVisibility,
     addPriorityTask,
     removePriorityTask,
-  }), [data, isLoading, toggleTask, addTask, updateStudyTime, addDDay, toggleSubjectVisibility, addPriorityTask, removePriorityTask]);
+    addBrainDumpItem,
+    updateBrainDumpItem,
+    deleteBrainDumpItem,
+    toggleBrainDumpItem,
+  }), [data, isLoading, toggleTask, addTask, updateStudyTime, addDDay, toggleSubjectVisibility, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
 });
