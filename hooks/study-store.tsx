@@ -30,6 +30,7 @@ interface DDay {
   title: string;
   date: string;
   daysLeft: number;
+  color?: string;
 }
 
 interface StudyData {

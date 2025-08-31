@@ -11,6 +11,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, User, X, Calendar, ChevronDown, Check, Edit2, Trash2 } from "lucide-react-native";
 import { router } from "expo-router";
@@ -64,6 +65,14 @@ export default function HomeScreen() {
   const [editingBrainDumpId, setEditingBrainDumpId] = useState<string | null>(null);
   const [editingBrainDumpText, setEditingBrainDumpText] = useState("");
   const [newBrainDumpText, setNewBrainDumpText] = useState("");
+  const [showDDayModal, setShowDDayModal] = useState(false);
+  const [showDailyActivityModal, setShowDailyActivityModal] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("#000000");
+  const [dDayTitle, setDDayTitle] = useState("");
+  const [dDayDescription, setDDayDescription] = useState("");
+  const [activityTitle, setActivityTitle] = useState("");
+  const [isPriorityActivity, setIsPriorityActivity] = useState(false);
+  const [enableNotifications, setEnableNotifications] = useState(false);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -271,7 +280,7 @@ export default function HomeScreen() {
             ))}
             <TouchableOpacity 
               style={styles.addDDayCard}
-              onPress={() => setShowAddExamModal(true)}
+              onPress={() => setShowDDayModal(true)}
             >
               <Plus size={32} color="#8E8E93" />
             </TouchableOpacity>
@@ -285,7 +294,7 @@ export default function HomeScreen() {
         <View style={styles.tasksSection}>
           <View style={styles.taskHeader}>
             <Text style={styles.taskTitle}>{t('priorityTasksTitle')}</Text>
-            <TouchableOpacity onPress={() => setShowAddTaskModal(true)}>
+            <TouchableOpacity onPress={() => setShowDailyActivityModal(true)}>
               <Plus size={20} color="#8E8E93" />
             </TouchableOpacity>
           </View>
@@ -641,6 +650,201 @@ export default function HomeScreen() {
             </View>
           </ScrollView>
         </SafeAreaView>
+      </Modal>
+
+      {/* D-DAY Registration Modal */}
+      <Modal
+        visible={showDDayModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowDDayModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <LinearGradient
+            colors={['#F2F2F7', '#E8E8ED']}
+            style={styles.modalGradientContainer}
+          >
+            <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowDDayModal(false)}>
+              <X size={24} color="#8E8E93" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>D-DAY 등록</Text>
+            <TouchableOpacity 
+              onPress={() => {
+                if (dDayTitle.trim()) {
+                  const examDate = new Date();
+                  examDate.setDate(examDate.getDate() + 30); // Default 30 days from now
+                  const today = new Date();
+                  const timeDiff = examDate.getTime() - today.getTime();
+                  const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                  
+                  addDDay({
+                    title: dDayTitle,
+                    date: examDate.toISOString().split('T')[0],
+                    daysLeft: daysLeft,
+                    color: selectedColor
+                  });
+                  
+                  setDDayTitle("");
+                  setDDayDescription("");
+                  setSelectedColor("#000000");
+                  setShowDDayModal(false);
+                }
+              }}
+            >
+              <Text style={styles.saveButton}>저장</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView 
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalContent}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>제목</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={dDayTitle}
+                  onChangeText={setDDayTitle}
+                  placeholder="제목을 입력해주세요."
+                  placeholderTextColor="#8E8E93"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>목표날짜</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={dDayDescription}
+                  onChangeText={setDDayDescription}
+                  placeholder="목표일을 입력해주세요."
+                  placeholderTextColor="#8E8E93"
+                />
+              </View>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>색상선택</Text>
+                <View style={styles.colorPicker}>
+                  {[
+                    "#000000", "#4A4A4A", "#8E8E93", "#C7C7CC", 
+                    "#E5E5EA", "#F2F2F7", "#FFFFFF"
+                  ].map((color) => (
+                    <TouchableOpacity
+                      key={color}
+                      style={[
+                        styles.colorOption,
+                        { backgroundColor: color },
+                        selectedColor === color && styles.selectedColorOption
+                      ]}
+                      onPress={() => setSelectedColor(color)}
+                    />
+                  ))}
+                </View>
+              </View>
+              
+              <TouchableOpacity style={styles.saveButtonLarge}>
+                <Text style={styles.saveButtonText}>저장</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+            </SafeAreaView>
+          </LinearGradient>
+        </View>
+      </Modal>
+
+      {/* Daily Activity Registration Modal */}
+      <Modal
+        visible={showDailyActivityModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowDailyActivityModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.dailyActivityModalContainer}>
+            <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowDailyActivityModal(false)}>
+              <X size={24} color="#8E8E93" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>할일 등록</Text>
+            <TouchableOpacity 
+              onPress={() => {
+                if (activityTitle.trim()) {
+                  const newTask = {
+                    title: activityTitle,
+                    completed: false,
+                    priority: isPriorityActivity ? "high" as const : undefined
+                  };
+                  
+                  addTask(newTask);
+                  
+                  if (isPriorityActivity && (priorityTasks?.length || 0) < 3) {
+                    addPriorityTask({
+                      title: activityTitle,
+                      description: ""
+                    });
+                  }
+                  
+                  setActivityTitle("");
+                  setIsPriorityActivity(false);
+                  setEnableNotifications(false);
+                  setShowDailyActivityModal(false);
+                }
+              }}
+            >
+              <Text style={styles.saveButton}>저장</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView 
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalContent}>
+              <View style={styles.inputGroup}>
+                <TextInput
+                  style={styles.textInput}
+                  value={activityTitle}
+                  onChangeText={setActivityTitle}
+                  placeholder="할일을 입력해주세요."
+                  placeholderTextColor="#8E8E93"
+                />
+              </View>
+              
+              <View style={styles.checkboxRow}>
+                <TouchableOpacity 
+                  style={styles.checkboxContainer}
+                  onPress={() => setIsPriorityActivity(!isPriorityActivity)}
+                >
+                  <View style={[styles.checkbox, isPriorityActivity && styles.checkboxChecked]}>
+                    {isPriorityActivity && <Check size={14} color="#FFFFFF" />}
+                  </View>
+                  <Text style={styles.checkboxLabel}>우선 순위</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.checkboxContainer}
+                  onPress={() => setEnableNotifications(!enableNotifications)}
+                >
+                  <View style={[styles.checkbox, enableNotifications && styles.checkboxChecked]}>
+                    {enableNotifications && <Check size={14} color="#FFFFFF" />}
+                  </View>
+                  <Text style={styles.checkboxLabel}>생각 알아내기</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <TouchableOpacity style={styles.saveButtonLarge}>
+                <Text style={styles.saveButtonText}>저장</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+            </SafeAreaView>
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -1194,5 +1398,71 @@ const styles = StyleSheet.create({
   emptyBrainDumpText: {
     fontSize: 14,
     color: "#8E8E93",
+  },
+  colorPicker: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 8,
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#E5E5EA",
+  },
+  selectedColorOption: {
+    borderColor: "#007AFF",
+    borderWidth: 3,
+  },
+  saveButtonLarge: {
+    backgroundColor: "#E5E5EA",
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 24,
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000000",
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: "#000000",
+    marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalGradientContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  dailyActivityModalContainer: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: '#007AFF',
+    overflow: 'hidden',
   },
 });
