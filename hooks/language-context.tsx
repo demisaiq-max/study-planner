@@ -84,6 +84,12 @@ const translations: Record<Language, Translation> = {
     notes: '목록',
     stats: '성적관리',
     community: '커뮤니티',
+    
+    // Community
+    studyVerification: '오늘의 공부 인증',
+    gradeGroups: '내 등급 모임',
+    questionHelp: '문제질문하기',
+    publicPost: '공부인증',
   },
   en: {
     // Header
@@ -160,6 +166,12 @@ const translations: Record<Language, Translation> = {
     notes: 'Notes',
     stats: 'Stats',
     community: 'Community',
+    
+    // Community
+    studyVerification: 'Study Verification',
+    gradeGroups: 'Grade Groups',
+    questionHelp: 'Question Help',
+    publicPost: 'Study Post',
   },
 };
 
