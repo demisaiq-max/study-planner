@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -42,36 +42,9 @@ interface Comment {
   liked: boolean;
 }
 
-const posts: Post[] = [
+const koreanPosts: Post[] = [
   {
     id: "1",
-    author: "아구몬",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    grade: "문과 | 5등급",
-    time: "14시간 전",
-    title: "학원다니기 싫다ㅠㅠㅠㅠ",
-    content: "학원이 너무 멀어서 가기 싫은데 어떻게 엄마를 설득할 수 있을까?",
-    likes: 20,
-    comments: 105,
-    shares: 26,
-    liked: false,
-  },
-  {
-    id: "2",
-    author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "문과 | 4등급",
-    time: "24시간 전",
-    title: "수능 얼마 안남았다.",
-    content: "모두 힘내자!",
-    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop",
-    likes: 15,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-  {
-    id: "3",
     author: "민준",
     avatar: "https://i.pravatar.cc/150?img=3",
     grade: "문과 | 2등급",
@@ -85,37 +58,7 @@ const posts: Post[] = [
     liked: false,
   },
   {
-    id: "4",
-    author: "아구몬",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    grade: "문과 | 5등급",
-    time: "14시간 전",
-    title: "2024년 9월 모평수학 5번 문제 모르겠어요ㅠㅠㅠ",
-    content: "제곧내",
-    category: "제곧내",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
-    likes: 20,
-    comments: 105,
-    shares: 26,
-    liked: false,
-  },
-  {
-    id: "5",
-    author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "문과 | 4등급",
-    time: "24시간 전",
-    title: "2022년 3월 모평 사회문화 16번 도와주세요!!!",
-    content: "제발 도와줘",
-    category: "제발 도와줘",
-    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
-    likes: 15,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-  {
-    id: "6",
+    id: "2",
     author: "민준",
     avatar: "https://i.pravatar.cc/150?img=3",
     grade: "문과 | 2등급",
@@ -128,16 +71,31 @@ const posts: Post[] = [
     shares: 112,
     liked: false,
   },
+  {
+    id: "3",
+    author: "아구몬",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    grade: "문과 | 5등급",
+    time: "14시간 전",
+    title: "학원다니기 싫다ㅠㅠㅠㅠ",
+    content: "학원이 너무 멀어서 가기 실은데 어떻게 엄마를 설득할 수 있을까?",
+    likes: 20,
+    comments: 105,
+    shares: 26,
+    liked: false,
+  },
 ];
 
 export default function CommunityScreen() {
-  const { t } = useLanguage();
+  const { t, translateText, language } = useLanguage();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedFilter, setSelectedFilter] = useState('추천순');
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>(posts);
+  const [posts, setPosts] = useState<Post[]>(koreanPosts);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>(koreanPosts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const tabs = [
     t('studyVerification') || '오늘의 공부 인증',
@@ -147,12 +105,55 @@ export default function CommunityScreen() {
 
   const filters = ['추천순', '인기', '공민'];
 
+  const translatePosts = useCallback(async () => {
+    if (language === 'ko') {
+      setPosts(koreanPosts);
+      setFilteredPosts(koreanPosts);
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const translatedPosts = await Promise.all(
+        koreanPosts.map(async (post) => {
+          const [translatedTitle, translatedContent, translatedAuthor, translatedGrade] = await Promise.all([
+            translateText(post.title || '', 'en'),
+            translateText(post.content, 'en'),
+            translateText(post.author, 'en'),
+            translateText(post.grade, 'en')
+          ]);
+          
+          return {
+            ...post,
+            title: translatedTitle,
+            content: translatedContent,
+            author: translatedAuthor,
+            grade: translatedGrade,
+          };
+        })
+      );
+      
+      setPosts(translatedPosts);
+      setFilteredPosts(translatedPosts);
+    } catch (error) {
+      console.error('Translation failed:', error);
+      setPosts(koreanPosts);
+      setFilteredPosts(koreanPosts);
+    } finally {
+      setIsTranslating(false);
+    }
+  }, [language, translateText]);
+
+  useEffect(() => {
+    translatePosts();
+  }, [translatePosts]);
+
   const handlePostPress = (post: Post) => {
     setSelectedPost(post);
     setShowPostDetail(true);
   };
 
-  const handleFilterChange = (filter: string) => {
+  const handleFilterChange = useCallback((filter: string) => {
     setSelectedFilter(filter);
     
     let filtered = [...posts];
@@ -175,11 +176,11 @@ export default function CommunityScreen() {
     }
     
     setFilteredPosts(filtered);
-  };
+  }, [posts]);
 
   React.useEffect(() => {
     handleFilterChange(selectedFilter);
-  }, [selectedFilter]);
+  }, [selectedFilter, handleFilterChange]);
 
   const renderPost = (post: Post) => (
     <TouchableOpacity 
@@ -189,9 +190,6 @@ export default function CommunityScreen() {
     >
       {post.title && (
         <Text style={styles.postTitle}>{post.title}</Text>
-      )}
-      {post.category && (
-        <Text style={styles.postCategory}>{post.category}</Text>
       )}
       
       <Text style={styles.postContent}>{post.content}</Text>
@@ -286,7 +284,13 @@ export default function CommunityScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {filteredPosts.map(renderPost)}
+        {isTranslating ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>{t('loading')}</Text>
+          </View>
+        ) : (
+          filteredPosts.map(renderPost)
+        )}
       </ScrollView>
 
       <Modal
@@ -647,5 +651,15 @@ const styles = StyleSheet.create({
   commentActionText: {
     fontSize: 10,
     color: "#8E8E93",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#8E8E93',
   },
 });
