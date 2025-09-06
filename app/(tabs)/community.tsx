@@ -45,43 +45,48 @@ interface Comment {
 const koreanPosts: Post[] = [
   {
     id: "1",
-    author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    grade: "문과 | 2등급",
-    time: "24시간 전",
-    title: "이번 중간 끝나면 먹고 싶은건 많해...",
-    content: "나는 마라탕! 부추 양꼬치 볶음 고기(주기) 5일 볶아주구",
-    image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop",
-    likes: 220,
-    comments: 225,
-    shares: 112,
-    liked: false,
-  },
-  {
-    id: "2",
-    author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    grade: "문과 | 2등급",
-    time: "24시간 전",
-    title: "애드라, 수학 28번 개어려지 않았나?",
-    content: "수학 잘하는 놈이 직접",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
-    likes: 220,
-    comments: 225,
-    shares: 112,
-    liked: false,
-  },
-  {
-    id: "3",
     author: "아구몬",
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
     time: "14시간 전",
-    title: "학원다니기 싫다ㅠㅠㅠㅠ",
-    content: "학원이 너무 멀어서 가기 실은데 어떻게 엄마를 설득할 수 있을까?",
-    likes: 20,
-    comments: 105,
-    shares: 26,
+    content: "오운완",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+    likes: 15,
+    comments: 148,
+    shares: 18,
+    liked: false,
+    commentsList: [
+      {
+        id: "c1",
+        author: "아구몬",
+        avatar: "https://i.pravatar.cc/150?img=1",
+        time: "1일전",
+        content: "나 지신 기특해 ㅎ",
+        likes: 2,
+        liked: false,
+      },
+      {
+        id: "c2",
+        author: "메미",
+        avatar: "https://i.pravatar.cc/150?img=4",
+        time: "1일전",
+        content: "오 나도 지금 시작!",
+        likes: 0,
+        liked: false,
+      },
+    ],
+  },
+  {
+    id: "2",
+    author: "올탐",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    grade: "이과 | 1등급",
+    time: "2시간 전",
+    content: "수학 문제집 완주!",
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
+    likes: 32,
+    comments: 67,
+    shares: 12,
     liked: false,
   },
 ];
@@ -188,23 +193,22 @@ export default function CommunityScreen() {
       style={styles.postCard}
       onPress={() => handlePostPress(post)}
     >
-      {post.title && (
-        <Text style={styles.postTitle}>{post.title}</Text>
-      )}
-      
-      <Text style={styles.postContent}>{post.content}</Text>
-      
       <View style={styles.postHeader}>
         <Image source={{ uri: post.avatar }} style={styles.avatar} />
         <View style={styles.postInfo}>
           <Text style={styles.authorName}>{post.author} | {post.grade}</Text>
+          <Text style={styles.postTime}>{post.time}</Text>
         </View>
-        {post.image && (
-          <Image source={{ uri: post.image }} style={styles.postImageSmall} />
-        )}
       </View>
       
-      <Text style={styles.postTime}>{post.time}</Text>
+      {post.image && (
+        <Image source={{ uri: post.image }} style={styles.postImage} />
+      )}
+      
+      <View style={styles.postContentContainer}>
+        <Text style={styles.postContent}>{post.content}</Text>
+        <ChevronDown size={16} color="#000000" style={styles.dropdownIcon} />
+      </View>
       
       <View style={styles.postActions}>
         <View style={styles.actionButton}>
@@ -321,18 +325,17 @@ export default function CommunityScreen() {
                 </View>
               </View>
               
-              {selectedPost.title && (
-                <Text style={styles.postDetailTitle}>{selectedPost.title}</Text>
-              )}
-              
-              <Text style={styles.postDetailContent}>{selectedPost.content}</Text>
+              <View style={styles.postDetailContentContainer}>
+                <Text style={styles.postDetailContent}>{selectedPost.content}</Text>
+                <ChevronDown size={16} color="#000000" style={styles.dropdownIcon} />
+              </View>
               
               {selectedPost.image && (
                 <Image source={{ uri: selectedPost.image }} style={styles.postDetailImage} />
               )}
               
               <View style={styles.postDetailActions}>
-                <Text style={styles.actionLabel}>조회 {selectedPost.likes}</Text>
+                <Text style={styles.actionLabel}>조회 {selectedPost.shares}</Text>
                 <TouchableOpacity style={styles.likeButton}>
                   <Heart size={16} color="#8E8E93" />
                   <Text style={styles.likeButtonText}>{selectedPost.likes}</Text>
@@ -376,7 +379,7 @@ export default function CommunityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#F5F5F5",
   },
   header: {
     flexDirection: "row",
@@ -451,11 +454,19 @@ const styles = StyleSheet.create({
   },
   postCard: {
     backgroundColor: "#FFFFFF",
-    marginTop: 8,
+    marginBottom: 8,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderRadius: 12,
+    marginHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   postTitle: {
     fontSize: 16,
@@ -471,8 +482,7 @@ const styles = StyleSheet.create({
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 12,
   },
   avatar: {
     width: 32,
@@ -490,26 +500,38 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   postTime: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#8E8E93",
-    marginBottom: 8,
+    marginTop: 2,
   },
   postContent: {
-    fontSize: 14,
-    color: "#8E8E93",
+    fontSize: 16,
+    color: "#000000",
+    fontWeight: "600",
     lineHeight: 20,
-    marginBottom: 8,
   },
-  postImageSmall: {
-    width: 60,
-    height: 60,
+  postImage: {
+    width: "100%",
+    height: 200,
     borderRadius: 8,
-    backgroundColor: "#F0F0F0",
-    marginLeft: "auto",
+    backgroundColor: "#8E8E93",
+    marginBottom: 12,
+  },
+  postContentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  dropdownIcon: {
+    marginLeft: 8,
   },
   postActions: {
     flexDirection: "row",
-    gap: 16,
+    justifyContent: "space-between",
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
   },
   actionButton: {
     flexDirection: "row",
@@ -559,9 +581,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   postDetailContent: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#000000",
+    fontWeight: "600",
     lineHeight: 20,
+  },
+  postDetailContentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
   postDetailImage: {
