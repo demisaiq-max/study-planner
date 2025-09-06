@@ -135,6 +135,7 @@ export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedFilter, setSelectedFilter] = useState('추천순');
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>(posts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
 
@@ -150,6 +151,35 @@ export default function CommunityScreen() {
     setSelectedPost(post);
     setShowPostDetail(true);
   };
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    
+    let filtered = [...posts];
+    
+    switch (filter) {
+      case '추천순':
+        // Sort by likes (most liked first)
+        filtered = filtered.sort((a, b) => b.likes - a.likes);
+        break;
+      case '인기':
+        // Sort by comments (most commented first)
+        filtered = filtered.sort((a, b) => b.comments - a.comments);
+        break;
+      case '공민':
+        // Sort by shares (most shared first)
+        filtered = filtered.sort((a, b) => b.shares - a.shares);
+        break;
+      default:
+        break;
+    }
+    
+    setFilteredPosts(filtered);
+  };
+
+  React.useEffect(() => {
+    handleFilterChange(selectedFilter);
+  }, [selectedFilter]);
 
   const renderPost = (post: Post) => (
     <TouchableOpacity 
@@ -235,7 +265,7 @@ export default function CommunityScreen() {
                 styles.filterButton, 
                 selectedFilter === filter && styles.filterButtonActive
               ]}
-              onPress={() => setSelectedFilter(filter)}
+              onPress={() => handleFilterChange(filter)}
             >
               <Text style={[
                 styles.filterText,
@@ -256,7 +286,7 @@ export default function CommunityScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {posts.map(renderPost)}
+        {filteredPosts.map(renderPost)}
       </ScrollView>
 
       <Modal
