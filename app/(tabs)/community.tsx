@@ -208,6 +208,7 @@ export default function CommunityScreen() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [translationCache, setTranslationCache] = useState<Record<string, Post[]>>({});
 
   const tabs = [
     t('studyVerification') || '오늘의 공부 인증',
@@ -217,7 +218,7 @@ export default function CommunityScreen() {
 
   const filters = ['추천순', '인기', '공민'];
 
-  const getCurrentPosts = () => {
+  const getCurrentPosts = useCallback(() => {
     switch (activeTab) {
       case 0:
         return studyVerificationPosts;
@@ -228,14 +229,22 @@ export default function CommunityScreen() {
       default:
         return studyVerificationPosts;
     }
-  };
+  }, [activeTab]);
 
   const translatePosts = useCallback(async () => {
     const currentPosts = getCurrentPosts();
+    const cacheKey = `${activeTab}-${language}`;
     
     if (language === 'ko') {
       setPosts(currentPosts);
       setFilteredPosts(currentPosts);
+      return;
+    }
+
+    // Check if we have cached translations for this tab and language
+    if (translationCache[cacheKey]) {
+      setPosts(translationCache[cacheKey]);
+      setFilteredPosts(translationCache[cacheKey]);
       return;
     }
 
@@ -262,6 +271,12 @@ export default function CommunityScreen() {
         })
       );
       
+      // Cache the translated posts
+      setTranslationCache(prev => ({
+        ...prev,
+        [cacheKey]: translatedPosts
+      }));
+      
       setPosts(translatedPosts);
       setFilteredPosts(translatedPosts);
     } catch (error) {
@@ -271,15 +286,11 @@ export default function CommunityScreen() {
     } finally {
       setIsTranslating(false);
     }
-  }, [language, translateText, activeTab, getCurrentPosts]);
+  }, [language, translateText, activeTab, getCurrentPosts, translationCache]);
 
   useEffect(() => {
     translatePosts();
   }, [translatePosts]);
-
-  useEffect(() => {
-    translatePosts();
-  }, [activeTab, translatePosts]);
 
   const handlePostPress = (post: Post) => {
     setSelectedPost(post);
