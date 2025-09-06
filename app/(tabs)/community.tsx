@@ -49,39 +49,6 @@ const posts: Post[] = [
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
     time: "14시간 전",
-    content: "오늘공 ▼",
-    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
-    likes: 15,
-    comments: 148,
-    shares: 18,
-    liked: false,
-    commentsList: [
-      {
-        id: "c1",
-        author: "아구몬",
-        avatar: "https://i.pravatar.cc/150?img=1",
-        time: "1일전",
-        content: "나 자신 기특해 ㅎ ㅎ",
-        likes: 2,
-        liked: false,
-      },
-      {
-        id: "c2",
-        author: "메미",
-        avatar: "https://i.pravatar.cc/150?img=2",
-        time: "1일전",
-        content: "오 나도 지금 시작!",
-        likes: 0,
-        liked: false,
-      },
-    ],
-  },
-  {
-    id: "2",
-    author: "올탐",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "문과 | 4등급",
-    time: "24시간 전",
     title: "학원다니기 싫다ㅠㅠㅠㅠ",
     content: "학원이 너무 멀어서 가기 싫은데 어떻게 엄마를 설득할 수 있을까?",
     likes: 20,
@@ -90,9 +57,9 @@ const posts: Post[] = [
     liked: false,
   },
   {
-    id: "3",
+    id: "2",
     author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=3",
+    avatar: "https://i.pravatar.cc/150?img=2",
     grade: "문과 | 4등급",
     time: "24시간 전",
     title: "수능 얼마 안남았다.",
@@ -104,12 +71,12 @@ const posts: Post[] = [
     liked: false,
   },
   {
-    id: "4",
+    id: "3",
     author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=4",
+    avatar: "https://i.pravatar.cc/150?img=3",
     grade: "문과 | 2등급",
     time: "24시간 전",
-    title: "이번 중간 끝나면 학고 싶은건 많해...",
+    title: "이번 중간 끝나면 먹고 싶은건 많해...",
     content: "나는 마라탕! 부추 양꼬치 볶음 고기(주기) 5일 볶아주구",
     image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop",
     likes: 220,
@@ -118,7 +85,7 @@ const posts: Post[] = [
     liked: false,
   },
   {
-    id: "5",
+    id: "4",
     author: "아구몬",
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
@@ -130,6 +97,35 @@ const posts: Post[] = [
     likes: 20,
     comments: 105,
     shares: 26,
+    liked: false,
+  },
+  {
+    id: "5",
+    author: "메미",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    grade: "문과 | 4등급",
+    time: "24시간 전",
+    title: "2022년 3월 모평 사회문화 16번 도와주세요!!!",
+    content: "제발 도와줘",
+    category: "제발 도와줘",
+    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
+    likes: 15,
+    comments: 148,
+    shares: 18,
+    liked: false,
+  },
+  {
+    id: "6",
+    author: "민준",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    grade: "문과 | 2등급",
+    time: "24시간 전",
+    title: "애드라, 수학 28번 개어려지 않았나?",
+    content: "수학 잘하는 놈이 직접",
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
+    likes: 220,
+    comments: 225,
+    shares: 112,
     liked: false,
   },
 ];
@@ -168,19 +164,19 @@ export default function CommunityScreen() {
         <Text style={styles.postCategory}>{post.category}</Text>
       )}
       
+      <Text style={styles.postContent}>{post.content}</Text>
+      
       <View style={styles.postHeader}>
         <Image source={{ uri: post.avatar }} style={styles.avatar} />
         <View style={styles.postInfo}>
           <Text style={styles.authorName}>{post.author} | {post.grade}</Text>
-          <Text style={styles.postTime}>{post.time}</Text>
         </View>
+        {post.image && (
+          <Image source={{ uri: post.image }} style={styles.postImageSmall} />
+        )}
       </View>
       
-      <Text style={styles.postContent}>{post.content}</Text>
-      
-      {post.image && (
-        <Image source={{ uri: post.image }} style={styles.postImage} />
-      )}
+      <Text style={styles.postTime}>{post.time}</Text>
       
       <View style={styles.postActions}>
         <View style={styles.actionButton}>
@@ -425,7 +421,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: "#E5E5EA",
   },
   postTitle: {
     fontSize: 16,
@@ -442,6 +438,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
+    marginTop: 8,
   },
   avatar: {
     width: 32,
@@ -459,21 +456,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   postTime: {
-    fontSize: 10,
+    fontSize: 12,
     color: "#8E8E93",
+    marginBottom: 8,
   },
   postContent: {
     fontSize: 14,
-    color: "#000000",
+    color: "#8E8E93",
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  postImage: {
-    width: width - 40,
-    height: 200,
+  postImageSmall: {
+    width: 60,
+    height: 60,
     borderRadius: 8,
-    marginBottom: 12,
     backgroundColor: "#F0F0F0",
+    marginLeft: "auto",
   },
   postActions: {
     flexDirection: "row",
