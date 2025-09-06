@@ -435,7 +435,9 @@ export default function CommunityScreen() {
             <Text style={styles.loadingText}>{t('loading')}</Text>
           </View>
         ) : (
-          filteredPosts.map(renderPost)
+          <>
+            {filteredPosts.map(renderPost)}
+          </>
         )}
       </ScrollView>
 
