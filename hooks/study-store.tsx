@@ -30,6 +30,8 @@ interface DDay {
   title: string;
   date: string;
   daysLeft: number;
+  description?: string;
+  priority?: "high" | "medium" | "low";
 }
 
 interface StudyData {
@@ -59,8 +61,8 @@ const defaultData: StudyData = {
     { id: "7", title: "ebs 수능특강 강의 듣기", completed: false, subject: "사회" },
   ],
   dDays: [
-    { id: "1", title: "대학수학능력시험", date: "2025.11.13", daysLeft: 180 },
-    { id: "2", title: "9월 모의평가", date: "2025.09.15", daysLeft: 21 },
+    { id: "1", title: "대학수학능력시험", date: "2025.11.13", daysLeft: 180, description: "National college entrance exam", priority: "high" },
+    { id: "2", title: "9월 모의평가", date: "2025.09.15", daysLeft: 21, description: "September mock exam", priority: "medium" },
   ],
   todayStudyTime: 185,
   targetStudyTime: 360,

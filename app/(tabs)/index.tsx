@@ -300,11 +300,16 @@ export default function HomeScreen() {
             contentContainerStyle={styles.dDayScroll}
           >
             {dDays?.map((dDay) => (
-              <DayCard key={dDay.id} {...dDay} />
+              <TouchableOpacity
+                key={dDay.id}
+                onPress={() => router.push('/exam-management')}
+              >
+                <DayCard {...dDay} />
+              </TouchableOpacity>
             ))}
             <TouchableOpacity 
               style={styles.addDDayCard}
-              onPress={() => setShowAddExamModal(true)}
+              onPress={() => router.push('/exam-management')}
             >
               <Plus size={32} color="#8E8E93" />
             </TouchableOpacity>

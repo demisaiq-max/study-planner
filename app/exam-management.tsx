@@ -26,8 +26,12 @@ export default function ExamManagementScreen() {
   
   const [newExamTitle, setNewExamTitle] = useState("");
   const [newExamDate, setNewExamDate] = useState("");
+  const [newExamDescription, setNewExamDescription] = useState("");
+  const [newExamPriority, setNewExamPriority] = useState<"high" | "medium" | "low">("medium");
   const [editExamTitle, setEditExamTitle] = useState("");
   const [editExamDate, setEditExamDate] = useState("");
+  const [editExamDescription, setEditExamDescription] = useState("");
+  const [editExamPriority, setEditExamPriority] = useState<"high" | "medium" | "low">("medium");
 
   const handleAddExam = () => {
     if (!newExamTitle.trim() || !newExamDate.trim()) {
@@ -48,11 +52,15 @@ export default function ExamManagementScreen() {
     addDDay({
       title: newExamTitle,
       date: newExamDate,
-      daysLeft: daysLeft
+      daysLeft: daysLeft,
+      description: newExamDescription,
+      priority: newExamPriority
     });
 
     setNewExamTitle("");
     setNewExamDate("");
+    setNewExamDescription("");
+    setNewExamPriority("medium");
     setShowAddModal(false);
   };
 
@@ -76,13 +84,17 @@ export default function ExamManagementScreen() {
       updateDDay(editingExam.id, {
         title: editExamTitle,
         date: editExamDate,
-        daysLeft: daysLeft
+        daysLeft: daysLeft,
+        description: editExamDescription,
+        priority: editExamPriority
       });
     }
 
     setEditingExam(null);
     setEditExamTitle("");
     setEditExamDate("");
+    setEditExamDescription("");
+    setEditExamPriority("medium");
     setShowEditModal(false);
   };
 
@@ -109,7 +121,20 @@ export default function ExamManagementScreen() {
     setEditingExam(exam);
     setEditExamTitle(exam.title);
     setEditExamDate(exam.date);
+    setEditExamDescription(exam.description || "");
+    setEditExamPriority(exam.priority || "medium");
     setShowEditModal(true);
+  };
+
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case "high":
+        return "#FF3B30";
+      case "low":
+        return "#34C759";
+      default:
+        return "#FF9500";
+    }
   };
 
   return (
@@ -142,34 +167,40 @@ export default function ExamManagementScreen() {
           <View style={styles.examsList}>
             {dDays?.map((exam) => (
               <View key={exam.id} style={styles.examCard}>
-                <View style={styles.examInfo}>
-                  <View style={styles.examTextContainer}>
-                    <Text style={styles.examTitle}>{exam.title}</Text>
-                    <Text style={styles.examDate}>{exam.date}</Text>
+                <View style={[styles.priorityIndicator, { backgroundColor: getPriorityColor(exam.priority) }]} />
+                <View style={styles.examContent}>
+                  <View style={styles.examInfo}>
+                    <View style={styles.examTextContainer}>
+                      <Text style={styles.examTitle}>{exam.title}</Text>
+                      {exam.description && (
+                        <Text style={styles.examDescription} numberOfLines={2}>{exam.description}</Text>
+                      )}
+                      <Text style={styles.examDate}>{exam.date}</Text>
+                    </View>
+                    <View style={styles.daysContainer}>
+                      <Text style={[
+                        styles.daysLeft,
+                        exam.daysLeft <= 30 && styles.daysLeftUrgent
+                      ]}>
+                        D-{exam.daysLeft}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.daysContainer}>
-                    <Text style={[
-                      styles.daysLeft,
-                      exam.daysLeft <= 30 && styles.daysLeftUrgent
-                    ]}>
-                      D-{exam.daysLeft}
-                    </Text>
+                  
+                  <View style={styles.examActions}>
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => openEditModal(exam)}
+                    >
+                      <Edit2 size={18} color="#007AFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.actionButton}
+                      onPress={() => handleDeleteExam(exam.id)}
+                    >
+                      <Trash2 size={18} color="#FF3B30" />
+                    </TouchableOpacity>
                   </View>
-                </View>
-                
-                <View style={styles.examActions}>
-                  <TouchableOpacity 
-                    style={styles.actionButton}
-                    onPress={() => openEditModal(exam)}
-                  >
-                    <Edit2 size={18} color="#007AFF" />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.actionButton}
-                    onPress={() => handleDeleteExam(exam.id)}
-                  >
-                    <Trash2 size={18} color="#FF3B30" />
-                  </TouchableOpacity>
                 </View>
               </View>
             ))}
@@ -238,6 +269,55 @@ export default function ExamManagementScreen() {
                     placeholderTextColor="#8E8E93"
                   />
                 </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>{t('examDescription')}</Text>
+                  <TextInput
+                    style={[styles.textInput, styles.textArea]}
+                    value={newExamDescription}
+                    onChangeText={setNewExamDescription}
+                    placeholder={t('examDescPlaceholder')}
+                    placeholderTextColor="#8E8E93"
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>{t('importance')}</Text>
+                  <View style={styles.priorityButtons}>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityHigh,
+                        newExamPriority === "high" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setNewExamPriority("high")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('high')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityMedium,
+                        newExamPriority === "medium" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setNewExamPriority("medium")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('medium')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityLow,
+                        newExamPriority === "low" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setNewExamPriority("low")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('low')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -288,6 +368,55 @@ export default function ExamManagementScreen() {
                     placeholderTextColor="#8E8E93"
                   />
                 </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>{t('examDescription')}</Text>
+                  <TextInput
+                    style={[styles.textInput, styles.textArea]}
+                    value={editExamDescription}
+                    onChangeText={setEditExamDescription}
+                    placeholder={t('examDescPlaceholder')}
+                    placeholderTextColor="#8E8E93"
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>{t('importance')}</Text>
+                  <View style={styles.priorityButtons}>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityHigh,
+                        editExamPriority === "high" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setEditExamPriority("high")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('high')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityMedium,
+                        editExamPriority === "medium" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setEditExamPriority("medium")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('medium')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[
+                        styles.priorityButton, 
+                        styles.priorityLow,
+                        editExamPriority === "low" && styles.priorityButtonSelected
+                      ]}
+                      onPress={() => setEditExamPriority("low")}
+                    >
+                      <Text style={styles.priorityButtonText}>{t('low')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -329,13 +458,22 @@ const styles = StyleSheet.create({
   examCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: 16,
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    flexDirection: "row",
+    overflow: "hidden",
+  },
+  priorityIndicator: {
+    width: 4,
+    backgroundColor: "#FF9500",
+  },
+  examContent: {
+    flex: 1,
+    padding: 16,
   },
   examInfo: {
     flexDirection: "row",
@@ -351,6 +489,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#000000",
     marginBottom: 4,
+  },
+  examDescription: {
+    fontSize: 13,
+    color: "#666666",
+    marginBottom: 4,
+    lineHeight: 18,
   },
   examDate: {
     fontSize: 14,
@@ -462,5 +606,40 @@ const styles = StyleSheet.create({
     color: "#000000",
     borderWidth: 1,
     borderColor: "#E5E5EA",
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: "top",
+  },
+  priorityButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  priorityButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    opacity: 0.7,
+  },
+  priorityButtonSelected: {
+    opacity: 1,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  priorityHigh: {
+    backgroundColor: "#FF3B30",
+  },
+  priorityMedium: {
+    backgroundColor: "#FF9500",
+  },
+  priorityLow: {
+    backgroundColor: "#34C759",
+  },
+  priorityButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
 });
