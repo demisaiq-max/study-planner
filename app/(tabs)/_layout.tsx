@@ -2,9 +2,11 @@ import { Tabs } from "expo-router";
 import { Home, Clock, BookOpen, BarChart3, Users } from "lucide-react-native";
 import React from "react";
 import { useLanguage } from "@/hooks/language-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { t } = useLanguage();
+  const insets = useSafeAreaInsets();
   
   return (
     <Tabs
@@ -16,9 +18,9 @@ export default function TabLayout() {
           backgroundColor: "#FFFFFF",
           borderTopColor: "#E5E5EA",
           borderTopWidth: 1,
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+          paddingTop: 8,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : 0),
         },
         tabBarLabelStyle: {
           fontSize: 10,
