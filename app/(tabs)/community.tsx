@@ -461,7 +461,11 @@ export default function CommunityScreen() {
             style={[styles.tab, activeTab === index && styles.tabActive]}
             onPress={() => setActiveTab(index)}
           >
-            <Text style={[styles.tabText, activeTab === index && styles.tabTextActive]}>
+            <Text 
+              style={[styles.tabText, activeTab === index && styles.tabTextActive]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {tab}
             </Text>
           </TouchableOpacity>
@@ -727,19 +731,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5EA",
+    justifyContent: "space-between",
   },
   tab: {
-    marginRight: 24,
+    flex: 1,
     paddingBottom: 8,
+    alignItems: "center",
   },
   tabActive: {
     borderBottomWidth: 2,
     borderBottomColor: "#000000",
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#8E8E93",
     fontWeight: "400",
+    textAlign: "center",
   },
   tabTextActive: {
     color: "#000000",
