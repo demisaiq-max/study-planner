@@ -1,6 +1,17 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location?: string;
+  description?: string;
+  color: string;
+}
 
 interface CalendarWidgetProps {
   currentDate: Date;
@@ -8,6 +19,7 @@ interface CalendarWidgetProps {
 
 export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   const router = useRouter();
+  const [events, setEvents] = useState<Event[]>([]);
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const date = currentDate.getDate();
@@ -15,6 +27,35 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   
   const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  
+  // Load events when component mounts and when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadEvents();
+    }, [])
+  );
+  
+  const loadEvents = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('calendar_events');
+      if (stored) {
+        setEvents(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading events:', error);
+    }
+  };
+  
+  const formatDate = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+  
+
+  
+  const getEventsForDate = (checkDate: Date) => {
+    const dateStr = formatDate(checkDate);
+    return events.filter(event => event.date === dateStr);
+  };
   
   const getWeekDates = () => {
     const weekDates = [];
@@ -24,10 +65,13 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
     for (let i = 0; i < 7; i++) {
       const weekDate = new Date(startOfWeek);
       weekDate.setDate(startOfWeek.getDate() + i);
+      const dayEvents = getEventsForDate(weekDate);
       weekDates.push({
         date: weekDate.getDate(),
         day: dayNames[(i + 1) % 7], // Adjust for Monday start
         isToday: weekDate.getDate() === date && weekDate.getMonth() === month,
+        hasEvents: dayEvents.length > 0,
+        eventColors: dayEvents.slice(0, 3).map(e => e.color),
       });
     }
     return weekDates;
@@ -57,6 +101,16 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
             <Text style={[styles.dayName, item.isToday && styles.todayText]}>
               {item.day}
             </Text>
+            {item.hasEvents && (
+              <View style={styles.eventIndicators}>
+                {item.eventColors.map((color, i) => (
+                  <View
+                    key={i}
+                    style={[styles.eventDot, { backgroundColor: color }]}
+                  />
+                ))}
+              </View>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -111,5 +165,16 @@ const styles = StyleSheet.create({
   },
   todayText: {
     color: "#FFFFFF",
+  },
+  eventIndicators: {
+    flexDirection: "row",
+    marginTop: 4,
+    justifyContent: "center",
+  },
+  eventDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginHorizontal: 1,
   },
 });
