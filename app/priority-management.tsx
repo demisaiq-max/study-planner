@@ -11,11 +11,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, Edit2, Trash2, X, Check } from 'lucide-react-native';
+import { Plus, Edit2, Trash2, X, Check, ChevronLeft } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from '@/hooks/language-context';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 
 interface PriorityTask {
   id: string;
@@ -80,9 +79,26 @@ export default function PriorityManagementScreen() {
 
   const loadTasks = async () => {
     try {
-      const stored = await AsyncStorage.getItem('priorityTasks');
-      if (stored) {
-        setTasks(JSON.parse(stored));
+      // Load from the main study data storage
+      const studyData = await AsyncStorage.getItem('focusflow_study_data');
+      if (studyData) {
+        const parsed = JSON.parse(studyData);
+        // Convert priority tasks from study store format to our format
+        const priorityTasks = parsed.priorityTasks || [];
+        const convertedTasks: PriorityTask[] = priorityTasks.map((task: any, index: number) => ({
+          id: task.id || `task_${index}_${Date.now()}`,
+          title: task.title || '',
+          subject: task.subject || task.description || '',
+          priority: task.priority || 'high',
+          completed: task.completed || false,
+        }));
+        setTasks(convertedTasks);
+      }
+      
+      // Also check for legacy priority tasks storage
+      const legacyStored = await AsyncStorage.getItem('priorityTasks');
+      if (legacyStored && !studyData) {
+        setTasks(JSON.parse(legacyStored));
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -91,7 +107,24 @@ export default function PriorityManagementScreen() {
 
   const saveTasks = async (newTasks: PriorityTask[]) => {
     try {
+      // Save to both storages for compatibility
       await AsyncStorage.setItem('priorityTasks', JSON.stringify(newTasks));
+      
+      // Also update the main study data storage
+      const studyData = await AsyncStorage.getItem('focusflow_study_data');
+      if (studyData) {
+        const parsed = JSON.parse(studyData);
+        // Convert our format to study store format
+        parsed.priorityTasks = newTasks.map(task => ({
+          id: task.id,
+          title: task.title,
+          description: task.subject,
+          priority: task.priority,
+          completed: task.completed,
+        }));
+        await AsyncStorage.setItem('focusflow_study_data', JSON.stringify(parsed));
+      }
+      
       setTasks(newTasks);
     } catch (error) {
       console.error('Error saving tasks:', error);
@@ -174,16 +207,24 @@ export default function PriorityManagementScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <X size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t.title}</Text>
-        <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
-          <Plus size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+    <>
+      <Stack.Screen 
+        options={{ 
+          headerShown: true,
+          title: t.title,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ paddingLeft: 10 }}>
+              <ChevronLeft size={24} color="#007AFF" />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={handleAddTask} style={{ paddingRight: 10 }}>
+              <Plus size={24} color="#007AFF" />
+            </TouchableOpacity>
+          ),
+        }} 
+      />
+      <View style={styles.container}>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {tasks.length === 0 ? (
@@ -339,7 +380,8 @@ export default function PriorityManagementScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </SafeAreaView>
+      </View>
+    </>
   );
 }
 
@@ -347,27 +389,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F7',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000000',
-  },
-  addButton: {
-    padding: 4,
   },
   content: {
     flex: 1,
