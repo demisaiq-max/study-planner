@@ -1,10 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   TextInput,
   StyleSheet,
   View,
   Text,
   Platform,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
 import { Calendar } from "lucide-react-native";
 
@@ -24,7 +26,15 @@ export default function FormattedDateInput({
   style,
 }: FormattedDateInputProps) {
   const [displayValue, setDisplayValue] = useState(value || "");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return new Date(value);
+    }
+    return new Date();
+  });
   const inputRef = useRef<TextInput>(null);
+  const webDateInputRef = useRef<HTMLInputElement>(null);
 
   const formatDate = (text: string) => {
     // Remove all non-numeric characters
@@ -110,6 +120,40 @@ export default function FormattedDateInput({
     return "";
   };
 
+  const handleDateChange = (event: any, date?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    
+    if (date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      
+      setSelectedDate(date);
+      setDisplayValue(formattedDate);
+      onChangeText(formattedDate);
+    }
+  };
+
+  const handleCalendarPress = () => {
+    if (Platform.OS === 'web') {
+      // For web, trigger the native date input
+      webDateInputRef.current?.showPicker?.();
+    } else {
+      setShowDatePicker(true);
+    }
+  };
+
+  useEffect(() => {
+    // Update selectedDate when value changes
+    if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      setSelectedDate(new Date(value));
+      setDisplayValue(value);
+    }
+  }, [value]);
+
   const isComplete = displayValue.length === 10;
   const isValid = isComplete && isValidDate(displayValue);
 
@@ -136,9 +180,13 @@ export default function FormattedDateInput({
             {getPlaceholderDisplay()}
           </Text>
         )}
-        <View style={styles.iconContainer}>
-          <Calendar size={20} color="#8E8E93" />
-        </View>
+        <TouchableOpacity 
+          style={styles.iconContainer}
+          onPress={handleCalendarPress}
+          activeOpacity={0.7}
+        >
+          <Calendar size={20} color="#007AFF" />
+        </TouchableOpacity>
       </View>
       {displayValue && !isComplete && (
         <Text style={styles.helperText}>
@@ -149,6 +197,79 @@ export default function FormattedDateInput({
         <Text style={styles.errorText}>
           Please enter a valid date
         </Text>
+      )}
+      
+      {Platform.OS === 'ios' && showDatePicker && (() => {
+        const DateTimePicker = require('@react-native-community/datetimepicker').default;
+        return (
+          <Modal
+            visible={showDatePicker}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setShowDatePicker(false)}
+          >
+            <TouchableOpacity 
+              style={styles.modalOverlay}
+              activeOpacity={1}
+              onPress={() => setShowDatePicker(false)}
+            >
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                    <Text style={styles.modalCancel}>Cancel</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.modalTitle}>Select Date</Text>
+                  <TouchableOpacity onPress={() => {
+                    handleDateChange(null, selectedDate);
+                    setShowDatePicker(false);
+                  }}>
+                    <Text style={styles.modalDone}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleDateChange}
+                  style={styles.datePicker}
+                />
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        );
+      })()}
+      
+      {Platform.OS === 'android' && showDatePicker && (() => {
+        const DateTimePicker = require('@react-native-community/datetimepicker').default;
+        return (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        );
+      })()}
+      
+      {Platform.OS === 'web' && (
+        <input
+          type="date"
+          ref={webDateInputRef}
+          value={displayValue}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            setDisplayValue(newValue);
+            onChangeText(newValue);
+          }}
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            pointerEvents: 'auto',
+            width: 1,
+            height: 1,
+            left: -9999,
+          }}
+        />
       )}
     </View>
   );
@@ -195,6 +316,7 @@ const styles = StyleSheet.create({
     right: 16,
     top: "50%",
     transform: [{ translateY: -10 }],
+    padding: 4,
   },
   helperText: {
     fontSize: 12,
@@ -207,5 +329,43 @@ const styles = StyleSheet.create({
     color: "#FF3B30",
     marginTop: 4,
     marginLeft: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  modalCancel: {
+    fontSize: 16,
+    color: '#8E8E93',
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  modalDone: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  datePicker: {
+    backgroundColor: '#FFFFFF',
+    height: 200,
   },
 });
