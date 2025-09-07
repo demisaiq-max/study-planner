@@ -73,7 +73,7 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
       weekDates.push({
         date: weekDate.getDate(),
         fullDate: new Date(weekDate),
-        day: dayNames[i], // Use the correct day index
+        day: dayNames[weekDate.getDay()], // Use the actual day of the week
         isToday: weekDate.getDate() === date && weekDate.getMonth() === month && weekDate.getFullYear() === year,
         hasEvents: dayEvents.length > 0,
         eventColors: dayEvents.slice(0, 3).map(e => e.color),
