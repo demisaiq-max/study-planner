@@ -8,6 +8,7 @@ import {
   Image,
   Modal,
   Dimensions,
+  SafeAreaView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Search, Heart, MessageCircle, Share2, ArrowLeft, ChevronDown } from "lucide-react-native";
@@ -384,7 +385,7 @@ export default function CommunityScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('community') || '커뮤니티'}</Text>
         <TouchableOpacity>
@@ -527,7 +528,7 @@ export default function CommunityScreen() {
           )}
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
