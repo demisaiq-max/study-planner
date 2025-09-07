@@ -35,10 +35,10 @@ interface Subject {
 
 export default function ExamSelectionScreen() {
   // Exam type selection
-  const [examTypes, setExamTypes] = useState<ExamType[]>([
-    { id: "1", name: "고3 평가원", selected: true },
-    { id: "2", name: "실전", selected: false },
-  ]);
+  const [selectedExamType, setSelectedExamType] = useState("고3 평가원");
+  const [selectedExamLevel, setSelectedExamLevel] = useState("실전");
+  const [showExamTypeModal, setShowExamTypeModal] = useState(false);
+  const [showExamLevelModal, setShowExamLevelModal] = useState(false);
 
   // Date selection
   const [selectedYear, setSelectedYear] = useState("2025년");
@@ -46,24 +46,24 @@ export default function ExamSelectionScreen() {
   const [showYearModal, setShowYearModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
 
-  // Country selection
-  const [countries] = useState([
-    { id: "1", name: "학력과 작문", selected: true },
-    { id: "2", name: "언어와매체", selected: false },
+  // Korean language selection
+  const [koreanSubjects, setKoreanSubjects] = useState([
+    { id: "1", name: "화법과 작문", selected: true },
+    { id: "2", name: "언어와 매체", selected: false },
   ]);
 
   // Math selection
-  const [mathTypes] = useState([
-    { id: "1", name: "학물과통계", selected: false },
+  const [mathTypes, setMathTypes] = useState([
+    { id: "1", name: "확률과 통계", selected: false },
     { id: "2", name: "미적분", selected: true },
     { id: "3", name: "기하", selected: false },
   ]);
 
   // English selection
-  const [englishSelected] = useState(true);
+  const [englishSelected, setEnglishSelected] = useState(true);
 
   // Korean History selection
-  const [koreanHistorySelected] = useState(true);
+  const [koreanHistorySelected, setKoreanHistorySelected] = useState(true);
 
   // Exploration subjects
   const [explorationSubjects, setExplorationSubjects] = useState<Subject[]>([
@@ -86,15 +86,35 @@ export default function ExamSelectionScreen() {
     { id: "17", name: "지구과학 II", selected: false },
   ]);
 
-  const yearOptions = ["2025년", "2024년", "2023년", "2022년"];
+  // Korean exam types
+  const examTypeOptions = [
+    "고3 평가원",
+    "고3 학력평가",
+    "고2 학력평가",
+    "고1 학력평가",
+    "수능",
+    "6월 모의평가",
+    "9월 모의평가",
+  ];
+
+  const examLevelOptions = [
+    "실전",
+    "기출",
+    "변형",
+    "예상",
+    "모의고사",
+  ];
+
+  const yearOptions = ["2025년", "2024년", "2023년", "2022년", "2021년"];
+  
   const dateOptions = [
     "3.28 학력평가",
     "4.10 학력평가",
-    "6.4 평가원",
+    "6.4 평가원 모의평가",
     "7.11 학력평가",
-    "9.4 평가원",
+    "9.4 평가원 모의평가",
     "10.15 학력평가",
-    "11.14 수능",
+    "11.14 대학수학능력시험",
   ];
 
   const toggleExplorationSubject = (id: string) => {
@@ -104,6 +124,28 @@ export default function ExamSelectionScreen() {
           ? { ...subject, selected: !subject.selected }
           : subject
       )
+    );
+  };
+
+  const toggleKoreanSubject = (id: string) => {
+    setKoreanSubjects(prev =>
+      prev.map(subject => {
+        if (subject.id === id) {
+          return { ...subject, selected: true };
+        }
+        return { ...subject, selected: false };
+      })
+    );
+  };
+
+  const toggleMathType = (id: string) => {
+    setMathTypes(prev =>
+      prev.map(math => {
+        if (math.id === id) {
+          return { ...math, selected: true };
+        }
+        return { ...math, selected: false };
+      })
     );
   };
 
@@ -150,16 +192,16 @@ export default function ExamSelectionScreen() {
           <View style={styles.optionRow}>
             <TouchableOpacity
               style={[styles.dropdown, styles.dropdownHalf]}
-              onPress={() => {}}
+              onPress={() => setShowExamTypeModal(true)}
             >
-              <Text style={styles.dropdownText}>고3 평가원</Text>
+              <Text style={styles.dropdownText}>{selectedExamType}</Text>
               <ChevronDown size={16} color="#666666" />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.dropdown, styles.dropdownHalf]}
-              onPress={() => {}}
+              onPress={() => setShowExamLevelModal(true)}
             >
-              <Text style={styles.dropdownText}>실전</Text>
+              <Text style={styles.dropdownText}>{selectedExamLevel}</Text>
               <ChevronDown size={16} color="#666666" />
             </TouchableOpacity>
           </View>
@@ -186,26 +228,26 @@ export default function ExamSelectionScreen() {
           </View>
         </View>
 
-        {/* Country Section */}
+        {/* Korean Language Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>국어</Text>
           <View style={styles.optionRow}>
-            {countries.map((country) => (
+            {koreanSubjects.map((subject) => (
               <TouchableOpacity
-                key={country.id}
+                key={subject.id}
                 style={[
                   styles.optionButton,
-                  country.selected && styles.optionButtonSelected,
+                  subject.selected && styles.optionButtonSelected,
                 ]}
-                onPress={() => {}}
+                onPress={() => toggleKoreanSubject(subject.id)}
               >
                 <Text
                   style={[
                     styles.optionButtonText,
-                    country.selected && styles.optionButtonTextSelected,
+                    subject.selected && styles.optionButtonTextSelected,
                   ]}
                 >
-                  {country.name}
+                  {subject.name}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -224,7 +266,7 @@ export default function ExamSelectionScreen() {
                   styles.optionButtonThird,
                   math.selected && styles.optionButtonSelected,
                 ]}
-                onPress={() => {}}
+                onPress={() => toggleMathType(math.id)}
               >
                 <Text
                   style={[
@@ -249,7 +291,7 @@ export default function ExamSelectionScreen() {
                 styles.optionButtonFull,
                 englishSelected && styles.optionButtonSelected,
               ]}
-              onPress={() => {}}
+              onPress={() => setEnglishSelected(!englishSelected)}
             >
               <Text
                 style={[
@@ -273,7 +315,7 @@ export default function ExamSelectionScreen() {
                 styles.optionButtonFull,
                 koreanHistorySelected && styles.optionButtonSelected,
               ]}
-              onPress={() => {}}
+              onPress={() => setKoreanHistorySelected(!koreanHistorySelected)}
             >
               <Text
                 style={[
@@ -397,6 +439,94 @@ export default function ExamSelectionScreen() {
                     style={[
                       styles.modalOptionText,
                       selectedDate === item && styles.modalOptionTextSelected,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Exam Type Selection Modal */}
+      <Modal
+        visible={showExamTypeModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowExamTypeModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowExamTypeModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>시험 유형 선택</Text>
+              <TouchableOpacity onPress={() => setShowExamTypeModal(false)}>
+                <Text style={styles.modalCloseText}>완료</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {examTypeOptions.map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    setSelectedExamType(item);
+                    setShowExamTypeModal(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      selectedExamType === item && styles.modalOptionTextSelected,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Exam Level Selection Modal */}
+      <Modal
+        visible={showExamLevelModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowExamLevelModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowExamLevelModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>난이도 선택</Text>
+              <TouchableOpacity onPress={() => setShowExamLevelModal(false)}>
+                <Text style={styles.modalCloseText}>완료</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {examLevelOptions.map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    setSelectedExamLevel(item);
+                    setShowExamLevelModal(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      selectedExamLevel === item && styles.modalOptionTextSelected,
                     ]}
                   >
                     {item}
