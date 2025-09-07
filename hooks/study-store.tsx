@@ -213,6 +213,14 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     saveData({ ...data, brainDumpItems: updatedItems });
   }, [data]);
 
+  const updateSubjectGrade = useCallback((subject: string, grade: number) => {
+    const updatedGrades = {
+      ...data.subjectGrades,
+      [subject]: grade
+    };
+    saveData({ ...data, subjectGrades: updatedGrades });
+  }, [data]);
+
   return useMemo(() => ({
     ...data,
     isLoading,
@@ -221,11 +229,12 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     updateStudyTime,
     addDDay,
     toggleSubjectVisibility,
+    updateSubjectGrade,
     addPriorityTask,
     removePriorityTask,
     addBrainDumpItem,
     updateBrainDumpItem,
     deleteBrainDumpItem,
     toggleBrainDumpItem,
-  }), [data, isLoading, toggleTask, addTask, updateStudyTime, addDDay, toggleSubjectVisibility, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
+  }), [data, isLoading, toggleTask, addTask, updateStudyTime, addDDay, toggleSubjectVisibility, updateSubjectGrade, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
 });

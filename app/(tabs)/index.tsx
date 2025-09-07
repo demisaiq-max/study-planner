@@ -38,6 +38,7 @@ export default function HomeScreen() {
     subjectGrades,
     visibleSubjects,
     toggleSubjectVisibility,
+    updateSubjectGrade,
     priorityTasks,
     addPriorityTask,
     removePriorityTask,
@@ -64,6 +65,8 @@ export default function HomeScreen() {
   const [editingBrainDumpId, setEditingBrainDumpId] = useState<string | null>(null);
   const [editingBrainDumpText, setEditingBrainDumpText] = useState("");
   const [newBrainDumpText, setNewBrainDumpText] = useState("");
+  const [showEditGradesModal, setShowEditGradesModal] = useState(false);
+  const [editingGrades, setEditingGrades] = useState<Record<string, number>>({});
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -71,6 +74,12 @@ export default function HomeScreen() {
     }, 60000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (showEditGradesModal && subjectGrades) {
+      setEditingGrades({...subjectGrades});
+    }
+  }, [showEditGradesModal, subjectGrades]);
 
   const progressPercentage = (todayStudyTime / targetStudyTime) * 100;
 
@@ -200,7 +209,7 @@ export default function HomeScreen() {
         <View style={styles.subjectsCard}>
           <View style={styles.subjectsHeader}>
             <Text style={styles.subjectsTitle}>{t('subjectsTitle')}</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowEditGradesModal(true)}>
               <Text style={styles.subjectsEditButton}>{t('editButton')}</Text>
             </TouchableOpacity>
           </View>
@@ -636,6 +645,73 @@ export default function HomeScreen() {
                   <Text style={styles.emptyBrainDumpText}>No brain dump items yet</Text>
                 </View>
               )}
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Edit Grades Modal */}
+      <Modal
+        visible={showEditGradesModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowEditGradesModal(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowEditGradesModal(false)}>
+              <X size={24} color="#8E8E93" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>{t('editGrades')}</Text>
+            <TouchableOpacity 
+              onPress={() => {
+                Object.entries(editingGrades).forEach(([subject, grade]) => {
+                  if (updateSubjectGrade) {
+                    updateSubjectGrade(subject, grade);
+                  }
+                });
+                setShowEditGradesModal(false);
+              }}
+            >
+              <Text style={styles.saveButton}>{t('save')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView 
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalContent}>
+              {subjects?.map((subject) => (
+                <View key={subject} style={styles.gradeEditItem}>
+                  <Text style={styles.gradeEditLabel}>{t(subject.toLowerCase())}</Text>
+                  <View style={styles.gradeSelector}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => (
+                      <TouchableOpacity
+                        key={grade}
+                        style={[
+                          styles.gradeOption,
+                          editingGrades[subject] === grade && styles.gradeOptionSelected
+                        ]}
+                        onPress={() => {
+                          setEditingGrades(prev => ({
+                            ...prev,
+                            [subject]: grade
+                          }));
+                        }}
+                      >
+                        <Text style={[
+                          styles.gradeOptionText,
+                          editingGrades[subject] === grade && styles.gradeOptionTextSelected
+                        ]}>
+                          {grade}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -1198,5 +1274,42 @@ const styles = StyleSheet.create({
   emptyBrainDumpText: {
     fontSize: 14,
     color: "#8E8E93",
+  },
+  gradeEditItem: {
+    marginBottom: 24,
+  },
+  gradeEditLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000000",
+    marginBottom: 12,
+  },
+  gradeSelector: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  gradeOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: "#F2F2F7",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  gradeOptionSelected: {
+    backgroundColor: "#E8F3FF",
+    borderColor: "#007AFF",
+  },
+  gradeOptionText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#8E8E93",
+  },
+  gradeOptionTextSelected: {
+    color: "#007AFF",
+    fontWeight: "600",
   },
 });
