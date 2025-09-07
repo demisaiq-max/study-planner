@@ -181,7 +181,11 @@ export default function HomeScreen() {
 
         {/* Study Progress Card */}
         <View style={styles.timerCard}>
-          <TouchableOpacity style={styles.mockExamHeader} activeOpacity={0.7}>
+          <TouchableOpacity 
+            style={styles.mockExamHeader} 
+            activeOpacity={0.7}
+            onPress={() => router.push('/exam-selection')}
+          >
             <Text style={styles.mockExamTitle}>실시간 모의고사 채점하기</Text>
             <ArrowUpRight size={18} color="#666666" />
           </TouchableOpacity>
