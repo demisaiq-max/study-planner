@@ -63,7 +63,8 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   const getWeekDates = () => {
     const weekDates = [];
     const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(date - day + 1); // Start from Monday
+    // Start from Sunday (day 0)
+    startOfWeek.setDate(date - day);
     
     for (let i = 0; i < 7; i++) {
       const weekDate = new Date(startOfWeek);
@@ -72,8 +73,8 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
       weekDates.push({
         date: weekDate.getDate(),
         fullDate: new Date(weekDate),
-        day: dayNames[(i + 1) % 7], // Adjust for Monday start
-        isToday: weekDate.getDate() === date && weekDate.getMonth() === month,
+        day: dayNames[i], // Use the correct day index
+        isToday: weekDate.getDate() === date && weekDate.getMonth() === month && weekDate.getFullYear() === year,
         hasEvents: dayEvents.length > 0,
         eventColors: dayEvents.slice(0, 3).map(e => e.color),
       });
