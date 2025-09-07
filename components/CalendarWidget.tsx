@@ -50,7 +50,11 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   };
   
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    // Use local date formatting to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
 
@@ -62,18 +66,19 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   
   const getWeekDates = () => {
     const weekDates = [];
-    const startOfWeek = new Date(currentDate);
-    // Start from Sunday (day 0)
+    // Create a new date object to avoid mutating the original
+    const startOfWeek = new Date(year, month, date);
+    // Calculate the start of the week (Sunday)
     startOfWeek.setDate(date - day);
     
     for (let i = 0; i < 7; i++) {
-      const weekDate = new Date(startOfWeek);
-      weekDate.setDate(startOfWeek.getDate() + i);
+      // Create a fresh date for each day of the week
+      const weekDate = new Date(year, month, date - day + i);
       const dayEvents = getEventsForDate(weekDate);
       weekDates.push({
         date: weekDate.getDate(),
         fullDate: new Date(weekDate),
-        day: dayNames[weekDate.getDay()], // Use the actual day of the week
+        day: dayNames[weekDate.getDay()],
         isToday: weekDate.getDate() === date && weekDate.getMonth() === month && weekDate.getFullYear() === year,
         hasEvents: dayEvents.length > 0,
         eventColors: dayEvents.slice(0, 3).map(e => e.color),
