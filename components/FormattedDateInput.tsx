@@ -226,13 +226,17 @@ export default function FormattedDateInput({
                     <Text style={styles.modalDone}>Done</Text>
                   </TouchableOpacity>
                 </View>
-                <DateTimePicker
-                  value={selectedDate}
-                  mode="date"
-                  display="spinner"
-                  onChange={handleDateChange}
-                  style={styles.datePicker}
-                />
+                <View style={styles.datePickerContainer}>
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode="date"
+                    display="spinner"
+                    onChange={handleDateChange}
+                    style={styles.datePicker}
+                    textColor="#000000"
+                    themeVariant="light"
+                  />
+                </View>
               </View>
             </TouchableOpacity>
           </Modal>
@@ -332,40 +336,55 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F8F8',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   modalCancel: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#8E8E93',
+    fontWeight: '400',
   },
   modalTitle: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000000',
+    letterSpacing: 0.3,
   },
   modalDone: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: '#007AFF',
   },
   datePicker: {
-    backgroundColor: '#FFFFFF',
-    height: 200,
+    backgroundColor: '#F8F8F8',
+    height: 220,
+    color: '#000000',
+  },
+  datePickerContainer: {
+    backgroundColor: '#F8F8F8',
+    paddingVertical: 10,
   },
 });
