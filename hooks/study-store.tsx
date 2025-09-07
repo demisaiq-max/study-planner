@@ -148,6 +148,18 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     saveData({ ...data, tasks: [...data.tasks, newTask] });
   }, [data]);
 
+  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
+    const updatedTasks = data.tasks.map(task =>
+      task.id === taskId ? { ...task, ...updates } : task
+    );
+    saveData({ ...data, tasks: updatedTasks });
+  }, [data]);
+
+  const deleteTask = useCallback((taskId: string) => {
+    const updatedTasks = data.tasks.filter(task => task.id !== taskId);
+    saveData({ ...data, tasks: updatedTasks });
+  }, [data]);
+
   const updateStudyTime = useCallback((minutes: number) => {
     saveData({ ...data, todayStudyTime: data.todayStudyTime + minutes });
   }, [data]);
@@ -226,6 +238,8 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     isLoading,
     toggleTask,
     addTask,
+    updateTask,
+    deleteTask,
     updateStudyTime,
     addDDay,
     toggleSubjectVisibility,
@@ -236,5 +250,5 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     updateBrainDumpItem,
     deleteBrainDumpItem,
     toggleBrainDumpItem,
-  }), [data, isLoading, toggleTask, addTask, updateStudyTime, addDDay, toggleSubjectVisibility, updateSubjectGrade, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
+  }), [data, isLoading, toggleTask, addTask, updateTask, deleteTask, updateStudyTime, addDDay, toggleSubjectVisibility, updateSubjectGrade, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
 });
