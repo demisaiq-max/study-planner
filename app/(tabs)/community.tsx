@@ -8,10 +8,9 @@ import {
   Image,
   Modal,
   Dimensions,
-  SafeAreaView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Search, Heart, MessageCircle, Share2, ArrowLeft, ChevronDown } from "lucide-react-native";
+import { Search, Heart, MessageCircle, Repeat2, ChevronLeft, MoreHorizontal } from "lucide-react-native";
 import { useLanguage } from "@/hooks/language-context";
 
 const { width } = Dimensions.get('window');
@@ -50,11 +49,11 @@ const studyVerificationPosts: Post[] = [
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
     time: "14시간 전",
-    title: "학원다니기 싫다ㅠㅠㅠㅠ",
-    content: "학원이 너무 멀어서 가기 싫은데 어떻게 엄마를 설득할 수 있을까?",
-    likes: 20,
-    comments: 105,
-    shares: 26,
+    content: "오운완 ♥",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+    likes: 15,
+    comments: 148,
+    shares: 18,
     liked: false,
     commentsList: [
       {
@@ -79,30 +78,15 @@ const studyVerificationPosts: Post[] = [
   },
   {
     id: "2",
-    author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=4",
-    grade: "문과 | 4등급",
+    author: "열혈",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    grade: "이과 | 1등급",
     time: "24시간 전",
-    title: "수능 영어 안녕다다.",
-    content: "모두 힘내자!!",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
-    likes: 15,
+    content: "",
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
+    likes: 148,
     comments: 148,
     shares: 18,
-    liked: false,
-  },
-  {
-    id: "3",
-    author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    grade: "문과 | 2등급",
-    time: "24시간 전",
-    title: "이번 중간 끝나면 먹고 싶은건 말해...",
-    content: "나는 마라탕 무조 창렬 냠냠 고기까지 5번 말까지...",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    likes: 220,
-    comments: 225,
-    shares: 112,
     liked: false,
   },
 ];
@@ -114,43 +98,24 @@ const gradeGroupPosts: Post[] = [
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
     time: "14시간 전",
-    title: "2024년 9월 모평수학 5번 문제 모르겠어요ㅠㅠㅠ",
-    category: "재료내",
-    content: "2024년 9월 모평수학 5번 문제 모르겠어요ㅠㅠㅠ",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
-    likes: 20,
-    comments: 105,
-    shares: 26,
-    liked: false,
-  },
-  {
-    id: "5",
-    author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=4",
-    grade: "문과 | 4등급",
-    time: "24시간 전",
-    title: "2022년 3월 모평 사회문화 16번 도와주세요!!!",
-    category: "재발 도와줘",
-    content: "2022년 3월 모평 사회문화 16번 도와주세요!!!",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+    content: "오운완 ♥",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     likes: 15,
     comments: 148,
     shares: 18,
     liked: false,
   },
   {
-    id: "6",
-    author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    grade: "문과 | 2등급",
+    id: "5",
+    author: "열혈",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    grade: "이과 | 1등급",
     time: "24시간 전",
-    title: "애들아, 수학 2점만 개어려지 않았나?",
-    category: "수학 질어는 들어 질문",
-    content: "애들아, 수학 2점만 개어려지 않았나?",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
-    likes: 220,
-    comments: 225,
-    shares: 112,
+    content: "",
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
+    likes: 148,
+    comments: 148,
+    shares: 18,
     liked: false,
   },
 ];
@@ -162,39 +127,24 @@ const questionHelpPosts: Post[] = [
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과 | 5등급",
     time: "14시간 전",
-    title: "학원다니기 싫다ㅠㅠㅠㅠ",
-    content: "학원이 너무 멀어서 가기 싫은데 어떻게 엄마를 설득할 수 있을까?",
-    likes: 20,
-    comments: 105,
-    shares: 26,
-    liked: false,
-  },
-  {
-    id: "8",
-    author: "메미",
-    avatar: "https://i.pravatar.cc/150?img=4",
-    grade: "문과 | 4등급",
-    time: "24시간 전",
-    title: "수능 영어 안녕다다.",
-    content: "모두 힘내자!!",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
+    content: "오운완 ♥",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     likes: 15,
     comments: 148,
     shares: 18,
     liked: false,
   },
   {
-    id: "9",
-    author: "민준",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    grade: "문과 | 2등급",
+    id: "8",
+    author: "열혈",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    grade: "이과 | 1등급",
     time: "24시간 전",
-    title: "이번 중간 끝나면 먹고 싶은건 말해...",
-    content: "나는 마라탕 무조 창렬 냠냠 고기까지 5번 말까지...",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    likes: 220,
-    comments: 225,
-    shares: 112,
+    content: "",
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
+    likes: 148,
+    comments: 148,
+    shares: 18,
     liked: false,
   },
 ];
@@ -203,8 +153,6 @@ export default function CommunityScreen() {
   const { t, translateText, language } = useLanguage();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedFilter, setSelectedFilter] = useState('추천순');
-  const [posts, setPosts] = useState<Post[]>(studyVerificationPosts);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>(studyVerificationPosts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
@@ -212,12 +160,10 @@ export default function CommunityScreen() {
   const [translationCache, setTranslationCache] = useState<Record<string, Post[]>>({});
 
   const tabs = [
-    t('studyVerification') || '오늘의 공부 인증',
-    t('gradeGroups') || '내 등급 모임',
-    t('questionHelp') || '문제질문하기'
+    '오늘의 공부 인증',
+    '내 등급 모임',
+    '문제질문하기'
   ];
-
-  const filters = ['추천순', '인기', '공민'];
 
   const getCurrentPosts = useCallback(() => {
     switch (activeTab) {
@@ -237,14 +183,12 @@ export default function CommunityScreen() {
     const cacheKey = `${activeTab}-${language}`;
     
     if (language === 'ko') {
-      setPosts(currentPosts);
       setFilteredPosts(currentPosts);
       return;
     }
 
     // Check if we have cached translations for this tab and language
     if (translationCache[cacheKey]) {
-      setPosts(translationCache[cacheKey]);
       setFilteredPosts(translationCache[cacheKey]);
       return;
     }
@@ -278,11 +222,9 @@ export default function CommunityScreen() {
         [cacheKey]: translatedPosts
       }));
       
-      setPosts(translatedPosts);
       setFilteredPosts(translatedPosts);
     } catch (error) {
       console.error('Translation failed:', error);
-      setPosts(currentPosts);
       setFilteredPosts(currentPosts);
     } finally {
       setIsTranslating(false);
@@ -298,34 +240,7 @@ export default function CommunityScreen() {
     setShowPostDetail(true);
   };
 
-  const handleFilterChange = useCallback((filter: string) => {
-    setSelectedFilter(filter);
-    
-    let filtered = [...posts];
-    
-    switch (filter) {
-      case '추천순':
-        // Sort by likes (most liked first)
-        filtered = filtered.sort((a, b) => b.likes - a.likes);
-        break;
-      case '인기':
-        // Sort by comments (most commented first)
-        filtered = filtered.sort((a, b) => b.comments - a.comments);
-        break;
-      case '공민':
-        // Sort by shares (most shared first)
-        filtered = filtered.sort((a, b) => b.shares - a.shares);
-        break;
-      default:
-        break;
-    }
-    
-    setFilteredPosts(filtered);
-  }, [posts]);
 
-  React.useEffect(() => {
-    handleFilterChange(selectedFilter);
-  }, [selectedFilter, handleFilterChange]);
 
   const renderPost = (post: Post) => (
     <TouchableOpacity 
@@ -333,14 +248,6 @@ export default function CommunityScreen() {
       style={styles.postCard}
       onPress={() => handlePostPress(post)}
     >
-      {post.title && (
-        <Text style={styles.postTitle}>{post.title}</Text>
-      )}
-      
-      {post.category && (
-        <Text style={styles.postCategory}>{post.category}</Text>
-      )}
-      
       <View style={styles.postHeader}>
         <Image source={{ uri: post.avatar }} style={styles.avatar} />
         <View style={styles.postInfo}>
@@ -349,45 +256,46 @@ export default function CommunityScreen() {
         </View>
       </View>
       
-      {activeTab === 0 && !post.title && (
-        <View style={styles.postContentContainer}>
-          <Text style={styles.postContent}>{post.content}</Text>
-        </View>
-      )}
-      
       {post.image && (
         <Image source={{ uri: post.image }} style={styles.postImage} />
       )}
       
+      {post.content ? (
+        <View style={styles.postContentWrapper}>
+          <Text style={styles.postContent}>{post.content}</Text>
+          <MoreHorizontal size={16} color="#000000" />
+        </View>
+      ) : null}
+      
       <View style={styles.postActions}>
-        <View style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton}>
           <Heart 
-            size={16} 
+            size={18} 
             color={post.liked ? "#FF3B30" : "#8E8E93"} 
             fill={post.liked ? "#FF3B30" : "none"}
           />
           <Text style={[styles.actionText, post.liked && styles.actionTextActive]}>
             {post.likes}
           </Text>
-        </View>
+        </TouchableOpacity>
         
-        <View style={styles.actionButton}>
-          <MessageCircle size={16} color="#8E8E93" />
+        <TouchableOpacity style={styles.actionButton}>
+          <MessageCircle size={18} color="#8E8E93" />
           <Text style={styles.actionText}>{post.comments}</Text>
-        </View>
+        </TouchableOpacity>
         
-        <View style={styles.actionButton}>
-          <Share2 size={16} color="#8E8E93" />
+        <TouchableOpacity style={styles.actionButton}>
+          <Repeat2 size={18} color="#8E8E93" />
           <Text style={styles.actionText}>{post.shares}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('community') || '커뮤니티'}</Text>
+        <Text style={styles.title}>커뮤니티</Text>
         <TouchableOpacity>
           <Search size={24} color="#000000" />
         </TouchableOpacity>
@@ -405,36 +313,6 @@ export default function CommunityScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
-
-      <View style={styles.filtersContainer}>
-        {activeTab === 0 && filters.map((filter) => (
-          <TouchableOpacity 
-            key={filter}
-            style={[
-              styles.filterButton, 
-              selectedFilter === filter && styles.filterButtonActive
-            ]}
-            onPress={() => handleFilterChange(filter)}
-          >
-            <Text style={[
-              styles.filterText,
-              selectedFilter === filter && styles.filterTextActive
-            ]}>
-              {filter}
-            </Text>
-            {filter === '추천순' && (
-              <ChevronDown size={16} color={selectedFilter === filter ? "#FFFFFF" : "#8E8E93"} />
-            )}
-          </TouchableOpacity>
-        ))}
-        
-        {activeTab === 1 && (
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterText}>추천순</Text>
-            <ChevronDown size={16} color="#8E8E93" />
-          </TouchableOpacity>
-        )}
       </View>
 
       <ScrollView 
@@ -464,10 +342,10 @@ export default function CommunityScreen() {
               onPress={() => setShowPostDetail(false)}
               style={styles.backButton}
             >
-              <ArrowLeft size={24} color="#000000" />
+              <ChevronLeft size={24} color="#000000" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>
-              {t('community') || '커뮤니티'}({t('publicPost') || '공부인증'})
+              커뮤니티(공부인증)
             </Text>
           </View>
           
@@ -483,7 +361,7 @@ export default function CommunityScreen() {
               
               <View style={styles.postDetailContentContainer}>
                 <Text style={styles.postDetailContent}>{selectedPost.content}</Text>
-                <ChevronDown size={16} color="#000000" style={styles.dropdownIcon} />
+                <MoreHorizontal size={16} color="#000000" style={styles.dropdownIcon} />
               </View>
               
               {selectedPost.image && (
@@ -528,14 +406,14 @@ export default function CommunityScreen() {
           )}
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F2F2F7",
   },
   header: {
     flexDirection: "row",
@@ -544,6 +422,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
   },
   title: {
     fontSize: 18,
@@ -554,7 +434,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 80,
   },
   tabsContainer: {
     flexDirection: "row",
@@ -610,11 +490,9 @@ const styles = StyleSheet.create({
   },
   postCard: {
     backgroundColor: "#FFFFFF",
-    marginBottom: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   postTitle: {
     fontSize: 16,
@@ -634,19 +512,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 10,
   },
   postInfo: {
     flex: 1,
   },
   authorName: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "500",
     color: "#000000",
-    marginBottom: 2,
   },
   postTime: {
     fontSize: 11,
@@ -654,20 +531,23 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   postContent: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#000000",
-    fontWeight: "600",
     lineHeight: 20,
+    flex: 1,
+  },
+  postContentWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
   postImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: width - 40,
+    height: width - 40,
+    borderRadius: 12,
     backgroundColor: "#8E8E93",
-    position: "absolute",
-    right: 20,
-    top: 16,
+    marginVertical: 12,
   },
   postContentContainer: {
     marginBottom: 12,
@@ -677,14 +557,17 @@ const styles = StyleSheet.create({
   },
   postActions: {
     flexDirection: "row",
-    justifyContent: "flex-start",
-    gap: 16,
+    justifyContent: "space-around",
     paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    marginTop: 8,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
+    paddingVertical: 4,
   },
   actionText: {
     fontSize: 12,
