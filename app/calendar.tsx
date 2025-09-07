@@ -8,6 +8,8 @@ import {
   Modal,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 import { Stack, useRouter } from 'expo-router';
@@ -363,7 +365,10 @@ export default function CalendarScreen() {
         transparent={true}
         onRequestClose={() => setShowEventModal(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
@@ -374,13 +379,18 @@ export default function CalendarScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalBody}>
+            <ScrollView 
+              style={styles.modalBody}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
               <Text style={styles.inputLabel}>Title *</Text>
               <TextInput
                 style={styles.input}
                 value={eventForm.title}
                 onChangeText={(text) => setEventForm({...eventForm, title: text})}
-                placeholder="Event title"
+                placeholder="Math Study Session"
+                placeholderTextColor="#C7C7CC"
               />
 
               <Text style={styles.inputLabel}>Time *</Text>
@@ -388,7 +398,8 @@ export default function CalendarScreen() {
                 style={styles.input}
                 value={eventForm.time}
                 onChangeText={(text) => setEventForm({...eventForm, time: text})}
-                placeholder="e.g., 10:00 AM"
+                placeholder="2:00 PM - 4:00 PM"
+                placeholderTextColor="#C7C7CC"
               />
 
               <Text style={styles.inputLabel}>Location</Text>
@@ -396,7 +407,8 @@ export default function CalendarScreen() {
                 style={styles.input}
                 value={eventForm.location}
                 onChangeText={(text) => setEventForm({...eventForm, location: text})}
-                placeholder="Event location"
+                placeholder="Library Room 203"
+                placeholderTextColor="#C7C7CC"
               />
 
               <Text style={styles.inputLabel}>Description</Text>
@@ -404,7 +416,8 @@ export default function CalendarScreen() {
                 style={[styles.input, styles.textArea]}
                 value={eventForm.description}
                 onChangeText={(text) => setEventForm({...eventForm, description: text})}
-                placeholder="Event description"
+                placeholder="Review chapters 5-7 for upcoming exam. Focus on calculus problems and practice exercises."
+                placeholderTextColor="#C7C7CC"
                 multiline
                 numberOfLines={3}
               />
@@ -423,6 +436,9 @@ export default function CalendarScreen() {
                   />
                 ))}
               </View>
+              
+              {/* Extra padding for keyboard */}
+              <View style={{ height: 20 }} />
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -440,7 +456,7 @@ export default function CalendarScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -632,7 +648,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '80%',
+    maxHeight: '90%',
+    flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -649,6 +666,7 @@ const styles = StyleSheet.create({
   },
   modalBody: {
     padding: 20,
+    flex: 1,
   },
   inputLabel: {
     fontSize: 14,
