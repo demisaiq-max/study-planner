@@ -416,7 +416,11 @@ export default function HomeScreen() {
         </View>
 
         {/* Brain Dump Section */}
-        <View style={styles.brainDumpSection}>
+        <TouchableOpacity 
+          style={styles.brainDumpSection}
+          onPress={() => router.push('/brain-manager')}
+          activeOpacity={0.8}
+        >
           <Text style={styles.brainDumpTitle}>Brain Dump</Text>
           
           <View style={styles.goalCard}>
@@ -445,7 +449,7 @@ export default function HomeScreen() {
               <Text style={styles.seeAllText}>See All ({brainDumpItems.length})</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Add Exam Modal */}
