@@ -299,14 +299,28 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.dDayScroll}
           >
-            {dDays?.map((dDay) => (
-              <TouchableOpacity
-                key={dDay.id}
-                onPress={() => router.push('/exam-management')}
-              >
-                <DayCard {...dDay} />
-              </TouchableOpacity>
-            ))}
+            {dDays?.map((dDay) => {
+              const examDate = new Date(dDay.date);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              examDate.setHours(0, 0, 0, 0);
+              const timeDiff = examDate.getTime() - today.getTime();
+              const calculatedDaysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+              const validDaysLeft = !isNaN(calculatedDaysLeft) && isFinite(calculatedDaysLeft) ? calculatedDaysLeft : dDay.daysLeft || 0;
+              
+              return (
+                <TouchableOpacity
+                  key={dDay.id}
+                  onPress={() => router.push('/exam-management')}
+                >
+                  <DayCard 
+                    {...dDay} 
+                    daysLeft={validDaysLeft}
+                    priority={dDay.priority}
+                  />
+                </TouchableOpacity>
+              );
+            })}
             <TouchableOpacity 
               style={styles.addDDayCard}
               onPress={() => router.push('/exam-management')}
