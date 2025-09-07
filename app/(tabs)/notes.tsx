@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Plus, Search, Calendar, Clock, CheckCircle, Trash2, Edit3, X } from "lucide-react-native";
 import { useStudyStore } from "@/hooks/study-store";
+import { useLanguage } from "@/hooks/language-context";
 
 interface Task {
   id: string;
@@ -29,6 +30,7 @@ interface Task {
 
 export default function NotesScreen() {
   const { tasks, subjects, addTask, toggleTask, updateTask, deleteTask } = useStudyStore();
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -74,7 +76,7 @@ export default function NotesScreen() {
 
   const handleSaveTask = () => {
     if (!taskTitle.trim()) {
-      Alert.alert("Error", "Please enter a task title");
+      Alert.alert(t('error'), t('taskTitleError'));
       return;
     }
 
@@ -101,12 +103,12 @@ export default function NotesScreen() {
 
   const handleDeleteTask = (taskId: string) => {
     Alert.alert(
-      "Delete Task",
-      "Are you sure you want to delete this task?",
+      t('deleteTask') || "Delete Task",
+      t('deleteTaskConfirm') || "Are you sure you want to delete this task?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t('cancel') || "Cancel", style: "cancel" },
         {
-          text: "Delete",
+          text: t('delete') || "Delete",
           style: "destructive",
           onPress: () => {
             deleteTask(taskId);
@@ -119,7 +121,7 @@ export default function NotesScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Study Notes</Text>
+        <Text style={styles.title}>{t('studyNotes') || t('notes')}</Text>
         <TouchableOpacity style={styles.addButton} onPress={openAddModal}>
           <Plus size={20} color="#FFFFFF" />
         </TouchableOpacity>
@@ -129,7 +131,7 @@ export default function NotesScreen() {
         <Search size={20} color="#8E8E93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search tasks..."
+          placeholder={t('searchTasks') || "Search tasks..."}
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor="#8E8E93"
@@ -139,17 +141,17 @@ export default function NotesScreen() {
       <View style={styles.statsCard}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{totalCount}</Text>
-          <Text style={styles.statLabel}>Total Tasks</Text>
+          <Text style={styles.statLabel}>{t('totalTasks') || "Total Tasks"}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{completedCount}</Text>
-          <Text style={styles.statLabel}>Completed</Text>
+          <Text style={styles.statLabel}>{t('completed') || "Completed"}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{completionRate}%</Text>
-          <Text style={styles.statLabel}>Progress</Text>
+          <Text style={styles.statLabel}>{t('progress') || "Progress"}</Text>
         </View>
       </View>
 
@@ -164,7 +166,7 @@ export default function NotesScreen() {
           onPress={() => setSelectedSubject(null)}
         >
           <Text style={[styles.subjectChipText, !selectedSubject && styles.subjectChipTextActive]}>
-            All
+            {t('all') || "All"}
           </Text>
         </TouchableOpacity>
         {subjects.map((subject) => (
@@ -200,11 +202,11 @@ export default function NotesScreen() {
                   <View style={styles.taskMeta}>
                     <View style={styles.taskMetaItem}>
                       <Calendar size={12} color="#8E8E93" />
-                      <Text style={styles.taskMetaText}>{task.dueDate || "No due date"}</Text>
+                      <Text style={styles.taskMetaText}>{task.dueDate || t('noDueDate') || "No due date"}</Text>
                     </View>
                     <View style={styles.taskMetaItem}>
                       <Clock size={12} color="#8E8E93" />
-                      <Text style={styles.taskMetaText}>{task.estimatedTime || "0"} min</Text>
+                      <Text style={styles.taskMetaText}>{task.estimatedTime || "0"} {t('min') || "min"}</Text>
                     </View>
                   </View>
                 </View>
@@ -249,7 +251,7 @@ export default function NotesScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {editingTask ? "Edit Task" : "Add New Task"}
+                {editingTask ? (t('editTask') || "Edit Task") : (t('addNewTask') || "Add New Task")}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <X size={24} color="#000000" />
@@ -258,29 +260,29 @@ export default function NotesScreen() {
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Title *</Text>
+                <Text style={styles.inputLabel}>{t('taskTitle')} *</Text>
                 <TextInput
                   style={styles.input}
                   value={taskTitle}
                   onChangeText={setTaskTitle}
-                  placeholder="Enter task title"
+                  placeholder={t('taskTitlePlaceholder')}
                   placeholderTextColor="#8E8E93"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Subject</Text>
+                <Text style={styles.inputLabel}>{t('subject') || "Subject"}</Text>
                 <TextInput
                   style={styles.input}
                   value={taskSubject}
                   onChangeText={setTaskSubject}
-                  placeholder="Enter subject"
+                  placeholder={t('enterSubject') || "Enter subject"}
                   placeholderTextColor="#8E8E93"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Due Date</Text>
+                <Text style={styles.inputLabel}>{t('dueDate') || "Due Date"}</Text>
                 <TextInput
                   style={styles.input}
                   value={taskDueDate}
@@ -291,19 +293,19 @@ export default function NotesScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Estimated Time (minutes)</Text>
+                <Text style={styles.inputLabel}>{t('estimatedTime') || "Estimated Time"} ({t('minutes') || "minutes"})</Text>
                 <TextInput
                   style={styles.input}
                   value={taskEstimatedTime}
                   onChangeText={setTaskEstimatedTime}
-                  placeholder="Enter time in minutes"
+                  placeholder={t('enterTimeInMinutes') || "Enter time in minutes"}
                   placeholderTextColor="#8E8E93"
                   keyboardType="numeric"
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Priority</Text>
+                <Text style={styles.inputLabel}>{t('priority') || "Priority"}</Text>
                 <View style={styles.priorityButtons}>
                   {(["high", "medium", "low"] as const).map((priority) => (
                     <TouchableOpacity
@@ -320,7 +322,7 @@ export default function NotesScreen() {
                           taskPriority === priority && styles.priorityButtonTextActive,
                         ]}
                       >
-                        {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                        {t(priority)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -328,12 +330,12 @@ export default function NotesScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Description</Text>
+                <Text style={styles.inputLabel}>{t('description')}</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   value={taskDescription}
                   onChangeText={setTaskDescription}
-                  placeholder="Enter description"
+                  placeholder={t('taskDescPlaceholder')}
                   placeholderTextColor="#8E8E93"
                   multiline
                   numberOfLines={4}
@@ -346,14 +348,14 @@ export default function NotesScreen() {
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('cancel') || "Cancel"}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.saveButton]}
                 onPress={handleSaveTask}
               >
                 <Text style={styles.saveButtonText}>
-                  {editingTask ? "Update" : "Add"} Task
+                  {editingTask ? (t('update') || "Update") : (t('add') || "Add")} {t('task') || "Task"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -378,7 +380,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5EA",
-    marginTop: 0,
   },
   title: {
     fontSize: 24,

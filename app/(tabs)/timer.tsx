@@ -7,9 +7,11 @@ import {
   Dimensions,
   Animated,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Play, Pause, RotateCcw, Coffee } from "lucide-react-native";
 import CircularProgress from "@/components/CircularProgress";
 import { useStudyStore } from "@/hooks/study-store";
+import { useLanguage } from "@/hooks/language-context";
 
 const { width } = Dimensions.get("window");
 
@@ -24,6 +26,7 @@ export default function TimerScreen() {
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const { updateStudyTime } = useStudyStore();
+  const { t } = useLanguage();
 
   const switchMode = useCallback((mode: "pomodoro" | "shortBreak" | "longBreak") => {
     setTimerMode(mode);
@@ -128,10 +131,10 @@ export default function TimerScreen() {
   }, [timerMode]);
 
   return (
-    <View style={[styles.container, { backgroundColor: getModeColor() + "10" }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: getModeColor() + "10" }]} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>FocusFlow Timer</Text>
-        <Text style={styles.subtitle}>Stay focused, stay productive</Text>
+        <Text style={styles.title}>{t('focusTimer') || "FocusFlow Timer"}</Text>
+        <Text style={styles.subtitle}>{t('stayFocused') || "Stay focused, stay productive"}</Text>
       </View>
 
       <View style={styles.modeSelector}>
@@ -140,7 +143,7 @@ export default function TimerScreen() {
           onPress={() => switchMode("pomodoro")}
         >
           <Text style={[styles.modeText, timerMode === "pomodoro" && styles.modeTextActive]}>
-            Pomodoro
+            {t('pomodoro') || "Pomodoro"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -148,7 +151,7 @@ export default function TimerScreen() {
           onPress={() => switchMode("shortBreak")}
         >
           <Text style={[styles.modeText, timerMode === "shortBreak" && styles.modeTextActive]}>
-            Short Break
+            {t('shortBreak') || "Short Break"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -156,7 +159,7 @@ export default function TimerScreen() {
           onPress={() => switchMode("longBreak")}
         >
           <Text style={[styles.modeText, timerMode === "longBreak" && styles.modeTextActive]}>
-            Long Break
+            {t('longBreak') || "Long Break"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -174,7 +177,7 @@ export default function TimerScreen() {
               {formatTime(timeLeft)}
             </Text>
             <Text style={styles.sessionText}>
-              {timerMode === "pomodoro" ? "Focus Time" : "Break Time"}
+              {timerMode === "pomodoro" ? (t('focusTime') || "Focus Time") : (t('breakTime') || "Break Time")}
             </Text>
           </View>
         </View>
@@ -210,14 +213,14 @@ export default function TimerScreen() {
       <View style={styles.stats}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{pomodoroCount}</Text>
-          <Text style={styles.statLabel}>Pomodoros</Text>
+          <Text style={styles.statLabel}>{t('pomodoros') || "Pomodoros"}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>{Math.floor((pomodoroCount * 25) / 60)}h {(pomodoroCount * 25) % 60}m</Text>
-          <Text style={styles.statLabel}>Total Focus</Text>
+          <Text style={styles.statValue}>{Math.floor((pomodoroCount * 25) / 60)}{t('hours') || "h"} {(pomodoroCount * 25) % 60}{t('minutes') || "m"}</Text>
+          <Text style={styles.statLabel}>{t('totalFocus') || "Total Focus"}</Text>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -227,7 +230,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    paddingTop: 20,
+    paddingTop: 15,
     paddingBottom: 10,
   },
   title: {
