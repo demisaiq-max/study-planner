@@ -382,9 +382,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     height: 220,
     color: '#000000',
+    width: '100%',
   },
   datePickerContainer: {
     backgroundColor: '#F8F8F8',
     paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
