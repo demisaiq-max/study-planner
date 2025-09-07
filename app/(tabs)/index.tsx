@@ -183,59 +183,49 @@ export default function HomeScreen() {
         <View style={styles.timerCard}>
           <TouchableOpacity style={styles.mockExamHeader} activeOpacity={0.7}>
             <Text style={styles.mockExamTitle}>실시간 모의고사 채점하기</Text>
-            <ArrowUpRight size={20} color="#007AFF" />
+            <ArrowUpRight size={18} color="#666666" />
           </TouchableOpacity>
           
           <View style={styles.progressSection}>
             <View style={styles.leftTextContainer}>
-              <Text style={styles.leftText}>{user?.name || '아구몬'} 님의</Text>
+              <Text style={styles.leftText}>아구몬 님의</Text>
               <Text style={styles.leftText}>현재 성적</Text>
             </View>
             
             <View style={styles.circlesContainer}>
               <View style={styles.circleItem}>
-                <View style={styles.circleWrapper}>
-                  <CircularProgress 
-                    percentage={89}
-                    size={80}
-                    strokeWidth={8}
-                    color="#333333"
-                    centerText="89"
-                  />
-                </View>
+                <CircularProgress 
+                  percentage={89}
+                  size={70}
+                  strokeWidth={6}
+                  color="#333333"
+                  centerText="89"
+                />
                 <Text style={styles.circleLabel}>목표 백분위</Text>
               </View>
               
               <View style={styles.circleItem}>
-                <View style={styles.circleWrapper}>
-                  <CircularProgress 
-                    percentage={50}
-                    size={80}
-                    strokeWidth={8}
-                    color="#E5E5EA"
-                    centerText="50"
-                  />
-                </View>
+                <CircularProgress 
+                  percentage={50}
+                  size={70}
+                  strokeWidth={6}
+                  color="#E5E5EA"
+                  centerText="50"
+                />
                 <Text style={styles.circleLabel}>평균 백분위</Text>
               </View>
               
               <View style={styles.circleItem}>
-                <View style={styles.circleWrapper}>
-                  <CircularProgress 
-                    percentage={68}
-                    size={80}
-                    strokeWidth={8}
-                    color="#666666"
-                    centerText="68"
-                  />
-                </View>
+                <CircularProgress 
+                  percentage={68}
+                  size={70}
+                  strokeWidth={6}
+                  color="#8E8E93"
+                  centerText="68"
+                />
                 <Text style={styles.circleLabel}>최근 백분위</Text>
               </View>
             </View>
-            
-            <TouchableOpacity style={styles.koreanButton} activeOpacity={0.7}>
-              <Text style={styles.koreanButtonText}>아</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -916,68 +906,49 @@ const styles = StyleSheet.create({
   mockExamHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     backgroundColor: "#F2F2F7",
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 20,
-  },
-  mockExamTitle: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#000000",
-  },
-  progressSection: {
+    padding: 10,
+    marginBottom: 16,
     position: "relative",
   },
+  mockExamTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333333",
+    marginRight: 6,
+  },
+  progressSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   leftTextContainer: {
-    position: "absolute",
-    left: 0,
-    top: "50%",
-    transform: [{ translateY: -20 }],
-    zIndex: 1,
+    flex: 0.25,
   },
   leftText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#000000",
-    lineHeight: 20,
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#333333",
+    lineHeight: 18,
   },
   circlesContainer: {
+    flex: 0.75,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-around",
     alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 10,
   },
   circleItem: {
     alignItems: "center",
   },
-  circleWrapper: {
-    marginBottom: 8,
-  },
   circleLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#666666",
     textAlign: "center",
+    marginTop: 6,
   },
-  koreanButton: {
-    position: "absolute",
-    right: 0,
-    top: "50%",
-    transform: [{ translateY: -20 }],
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  koreanButtonText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
+
   dDaySection: {
     marginTop: 20,
     paddingLeft: 20,

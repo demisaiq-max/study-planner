@@ -88,7 +88,7 @@ export default function CircularProgress({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <View style={{ width: size, height: size }}>
+    <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
       <Svg width={size} height={size} style={StyleSheet.absoluteFillObject}>
         <Circle
           cx={size / 2}
@@ -111,15 +111,18 @@ export default function CircularProgress({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
+      {centerText && (
+        <Text style={[styles.centerText, { fontSize: size * 0.35 }]}>{centerText}</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   centerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#000000',
     textAlign: 'center',
+    position: 'absolute',
   },
 });
