@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,9 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Play, Pause, RotateCcw, Coffee } from "lucide-react-native";
 import CircularProgress from "@/components/CircularProgress";
 import { useStudyStore } from "@/hooks/study-store";
@@ -27,42 +25,7 @@ export default function TimerScreen() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const { updateStudyTime } = useStudyStore();
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            handleTimerComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
-
-  const handleTimerComplete = () => {
-    if (timerMode === "pomodoro") {
-      setPomodoroCount((prev) => prev + 1);
-      updateStudyTime(POMODORO_TIME / 60);
-      
-      // Auto switch to break
-      if ((pomodoroCount + 1) % 4 === 0) {
-        switchMode("longBreak");
-      } else {
-        switchMode("shortBreak");
-      }
-    } else {
-      switchMode("pomodoro");
-    }
-  };
-
-  const switchMode = (mode: "pomodoro" | "shortBreak" | "longBreak") => {
+  const switchMode = useCallback((mode: "pomodoro" | "shortBreak" | "longBreak") => {
     setTimerMode(mode);
     setIsRunning(false);
     
@@ -90,33 +53,70 @@ export default function TimerScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  };
+  }, [fadeAnim]);
 
-  const toggleTimer = () => {
+  const handleTimerComplete = useCallback(() => {
+    if (timerMode === "pomodoro") {
+      setPomodoroCount((prev) => {
+        const newCount = prev + 1;
+        // Auto switch to break
+        if (newCount % 4 === 0) {
+          switchMode("longBreak");
+        } else {
+          switchMode("shortBreak");
+        }
+        return newCount;
+      });
+      updateStudyTime(POMODORO_TIME / 60);
+    } else {
+      switchMode("pomodoro");
+    }
+  }, [timerMode, switchMode, updateStudyTime]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setIsRunning(false);
+            handleTimerComplete();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, handleTimerComplete]);
+
+  const toggleTimer = useCallback(() => {
     setIsRunning(!isRunning);
-  };
+  }, [isRunning]);
 
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     setIsRunning(false);
     switchMode(timerMode);
-  };
+  }, [timerMode, switchMode]);
 
-  const formatTime = (seconds: number) => {
+  const formatTime = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
+  }, []);
 
-  const getProgress = () => {
+  const getProgress = useCallback(() => {
     const total = timerMode === "pomodoro" 
       ? POMODORO_TIME 
       : timerMode === "shortBreak" 
       ? SHORT_BREAK 
       : LONG_BREAK;
     return ((total - timeLeft) / total) * 100;
-  };
+  }, [timerMode, timeLeft]);
 
-  const getModeColor = () => {
+  const getModeColor = useCallback(() => {
     switch (timerMode) {
       case "pomodoro":
         return "#007AFF";
@@ -125,10 +125,10 @@ export default function TimerScreen() {
       case "longBreak":
         return "#AF52DE";
     }
-  };
+  }, [timerMode]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: getModeColor() + "10" }]}>
+    <View style={[styles.container, { backgroundColor: getModeColor() + "10" }]}>
       <View style={styles.header}>
         <Text style={styles.title}>FocusFlow Timer</Text>
         <Text style={styles.subtitle}>Stay focused, stay productive</Text>
@@ -217,7 +217,7 @@ export default function TimerScreen() {
           <Text style={styles.statLabel}>Total Focus</Text>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
