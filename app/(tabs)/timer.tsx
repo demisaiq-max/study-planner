@@ -7,7 +7,7 @@ import {
   Dimensions,
   Animated,
 } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Play, Pause, RotateCcw, Coffee } from "lucide-react-native";
 import CircularProgress from "@/components/CircularProgress";
 import { useStudyStore } from "@/hooks/study-store";
@@ -20,13 +20,13 @@ const SHORT_BREAK = 5 * 60; // 5 minutes
 const LONG_BREAK = 15 * 60; // 15 minutes
 
 export default function TimerScreen() {
-  const { updateStudyTime } = useStudyStore();
-  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState(POMODORO_TIME);
   const [isRunning, setIsRunning] = useState(false);
   const [timerMode, setTimerMode] = useState<"pomodoro" | "shortBreak" | "longBreak">("pomodoro");
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const { updateStudyTime } = useStudyStore();
+  const { t } = useLanguage();
 
   const switchMode = useCallback((mode: "pomodoro" | "shortBreak" | "longBreak") => {
     setTimerMode(mode);
@@ -131,7 +131,7 @@ export default function TimerScreen() {
   }, [timerMode]);
 
   return (
-    <View style={[styles.container, { backgroundColor: getModeColor() + "10" }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: getModeColor() + "10" }]} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('focusTimer') || "FocusFlow Timer"}</Text>
         <Text style={styles.subtitle}>{t('stayFocused') || "Stay focused, stay productive"}</Text>
@@ -216,13 +216,11 @@ export default function TimerScreen() {
           <Text style={styles.statLabel}>{t('pomodoros') || "Pomodoros"}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>
-            {Math.floor((pomodoroCount * 25) / 60)}{t('hours') || "h"} {(pomodoroCount * 25) % 60}{t('minutes') || "m"}
-          </Text>
+          <Text style={styles.statValue}>{Math.floor((pomodoroCount * 25) / 60)}{t('hours') || "h"} {(pomodoroCount * 25) % 60}{t('minutes') || "m"}</Text>
           <Text style={styles.statLabel}>{t('totalFocus') || "Total Focus"}</Text>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
