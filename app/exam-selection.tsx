@@ -48,37 +48,37 @@ export default function ExamSelectionScreen() {
 
   // Korean language selection
   const [koreanSubjects, setKoreanSubjects] = useState([
-    { id: "1", name: "화법과 작문", selected: true },
+    { id: "1", name: "화법과 작문", selected: false },
     { id: "2", name: "언어와 매체", selected: false },
   ]);
 
   // Math selection
   const [mathTypes, setMathTypes] = useState([
     { id: "1", name: "확률과 통계", selected: false },
-    { id: "2", name: "미적분", selected: true },
+    { id: "2", name: "미적분", selected: false },
     { id: "3", name: "기하", selected: false },
   ]);
 
   // English selection
-  const [englishSelected, setEnglishSelected] = useState(true);
+  const [englishSelected, setEnglishSelected] = useState(false);
 
   // Korean History selection
-  const [koreanHistorySelected, setKoreanHistorySelected] = useState(true);
+  const [koreanHistorySelected, setKoreanHistorySelected] = useState(false);
 
   // Exploration subjects
   const [explorationSubjects, setExplorationSubjects] = useState<Subject[]>([
-    { id: "1", name: "생활과윤리", selected: true },
+    { id: "1", name: "생활과윤리", selected: false },
     { id: "2", name: "윤리와사상", selected: false },
     { id: "3", name: "한국지리", selected: false },
     { id: "4", name: "세계지리", selected: false },
     { id: "5", name: "동아시아사", selected: false },
-    { id: "6", name: "세계사", selected: true },
+    { id: "6", name: "세계사", selected: false },
     { id: "7", name: "경제", selected: false },
     { id: "8", name: "정치와법", selected: false },
     { id: "9", name: "사회문화", selected: false },
     { id: "10", name: "물리학 I", selected: false },
     { id: "11", name: "화학 I", selected: false },
-    { id: "12", name: "생명과학", selected: false },
+    { id: "12", name: "생명과학 I", selected: false },
     { id: "13", name: "지구과학 I", selected: false },
     { id: "14", name: "물리학 II", selected: false },
     { id: "15", name: "화학 II", selected: false },
@@ -131,8 +131,10 @@ export default function ExamSelectionScreen() {
     setKoreanSubjects(prev =>
       prev.map(subject => {
         if (subject.id === id) {
-          return { ...subject, selected: true };
+          // Toggle the clicked subject
+          return { ...subject, selected: !subject.selected };
         }
+        // Deselect others (only one can be selected)
         return { ...subject, selected: false };
       })
     );
@@ -142,8 +144,10 @@ export default function ExamSelectionScreen() {
     setMathTypes(prev =>
       prev.map(math => {
         if (math.id === id) {
-          return { ...math, selected: true };
+          // Toggle the clicked math type
+          return { ...math, selected: !math.selected };
         }
+        // Deselect others (only one can be selected)
         return { ...math, selected: false };
       })
     );
@@ -209,7 +213,7 @@ export default function ExamSelectionScreen() {
 
         {/* Date Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>��험명</Text>
+          <Text style={styles.sectionTitle}>시험명</Text>
           <View style={styles.optionRow}>
             <TouchableOpacity
               style={[styles.dropdown, styles.dropdownHalf]}
