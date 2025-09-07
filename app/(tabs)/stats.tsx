@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   barWrapper: {
     height: 120,
-    width: "60%",
+    width: 30,
     justifyContent: "flex-end",
   },
   bar: {
