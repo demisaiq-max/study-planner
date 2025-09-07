@@ -128,6 +128,18 @@ const translations: Record<Language, Translation> = {
     pomodoros: '뽀모도로',
     hours: '시간',
     totalFocus: '총 집중 시간',
+    
+    // Exam Management
+    examManagement: '시험 관리',
+    manageExams: '시험 관리하기',
+    manageExamsDesc: '시험을 추가, 수정, 삭제할 수 있습니다',
+    noExams: '등록된 시험이 없습니다',
+    noExamsDesc: '첫 번째 시험을 추가해보세요',
+    addNewExam: '새 시험 추가',
+    editExam: '시험 수정',
+    deleteExam: '시험 삭제',
+    deleteExamConfirm: '이 시험을 삭제하시겠습니까?',
+    editGrades: '성적 편집',
   },
   en: {
     // Header
@@ -248,6 +260,18 @@ const translations: Record<Language, Translation> = {
     pomodoros: 'Pomodoros',
     hours: 'h',
     totalFocus: 'Total Focus',
+    
+    // Exam Management
+    examManagement: 'Exam Management',
+    manageExams: 'Manage Your Exams',
+    manageExamsDesc: 'Add, edit, or delete your upcoming exams',
+    noExams: 'No Exams Yet',
+    noExamsDesc: 'Add your first exam to start tracking',
+    addNewExam: 'Add New Exam',
+    editExam: 'Edit Exam',
+    deleteExam: 'Delete Exam',
+    deleteExamConfirm: 'Are you sure you want to delete this exam?',
+    editGrades: 'Edit Grades',
   },
 };
 

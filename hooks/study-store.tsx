@@ -172,6 +172,18 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     saveData({ ...data, dDays: [...data.dDays, newDDay] });
   }, [data]);
 
+  const updateDDay = useCallback((dDayId: string, updates: Partial<DDay>) => {
+    const updatedDDays = data.dDays.map(dDay =>
+      dDay.id === dDayId ? { ...dDay, ...updates } : dDay
+    );
+    saveData({ ...data, dDays: updatedDDays });
+  }, [data]);
+
+  const removeDDay = useCallback((dDayId: string) => {
+    const updatedDDays = data.dDays.filter(dDay => dDay.id !== dDayId);
+    saveData({ ...data, dDays: updatedDDays });
+  }, [data]);
+
   const toggleSubjectVisibility = useCallback((subject: string) => {
     const currentVisibleSubjects = data.visibleSubjects || [];
     const updatedVisibleSubjects = currentVisibleSubjects.includes(subject)
@@ -242,6 +254,8 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     deleteTask,
     updateStudyTime,
     addDDay,
+    updateDDay,
+    removeDDay,
     toggleSubjectVisibility,
     updateSubjectGrade,
     addPriorityTask,
@@ -250,5 +264,5 @@ export const [StudyProvider, useStudyStore] = createContextHook(() => {
     updateBrainDumpItem,
     deleteBrainDumpItem,
     toggleBrainDumpItem,
-  }), [data, isLoading, toggleTask, addTask, updateTask, deleteTask, updateStudyTime, addDDay, toggleSubjectVisibility, updateSubjectGrade, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
+  }), [data, isLoading, toggleTask, addTask, updateTask, deleteTask, updateStudyTime, addDDay, updateDDay, removeDDay, toggleSubjectVisibility, updateSubjectGrade, addPriorityTask, removePriorityTask, addBrainDumpItem, updateBrainDumpItem, deleteBrainDumpItem, toggleBrainDumpItem]);
 });

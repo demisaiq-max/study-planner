@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import { Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import { router } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -12,8 +13,16 @@ interface DayCardProps {
 export default function DayCard({ title, daysLeft, date }: DayCardProps) {
   const isUrgent = daysLeft <= 30;
   
+  const handlePress = () => {
+    router.push('/exam-management');
+  };
+  
   return (
-    <TouchableOpacity style={[styles.card, isUrgent && styles.cardUrgent]}>
+    <TouchableOpacity 
+      style={[styles.card, isUrgent && styles.cardUrgent]}
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.date}>{date}</Text>
       <Text style={[styles.daysLeft, isUrgent && styles.daysLeftUrgent]}>
