@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,9 +8,13 @@ import {
   Image,
   Modal,
   Dimensions,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Search, Heart, MessageCircle, Repeat2, ChevronLeft, MoreHorizontal } from "lucide-react-native";
+import { Search, Heart, MessageCircle, Share2, ChevronLeft, MoreHorizontal, Send, Camera, Image as ImageIcon, X } from "lucide-react-native";
 import { useLanguage } from "@/hooks/language-context";
 
 const { width } = Dimensions.get('window');
@@ -42,12 +46,12 @@ interface Comment {
   liked: boolean;
 }
 
-const studyVerificationPosts: Post[] = [
+const initialPosts: Post[] = [
   {
     id: "1",
     author: "아구몬",
     avatar: "https://i.pravatar.cc/150?img=1",
-    grade: "문과 | 5등급",
+    grade: "문과",
     time: "14시간 전",
     content: "오운완 ♥",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
@@ -55,32 +59,13 @@ const studyVerificationPosts: Post[] = [
     comments: 148,
     shares: 18,
     liked: false,
-    commentsList: [
-      {
-        id: "c1",
-        author: "아구몬",
-        avatar: "https://i.pravatar.cc/150?img=1",
-        time: "1일전",
-        content: "나 지신 기특해 ㅎ",
-        likes: 2,
-        liked: false,
-      },
-      {
-        id: "c2",
-        author: "메미",
-        avatar: "https://i.pravatar.cc/150?img=4",
-        time: "1일전",
-        content: "오 나도 지금 시작!",
-        likes: 0,
-        liked: false,
-      },
-    ],
+    commentsList: [],
   },
   {
     id: "2",
     author: "열혈",
     avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "이과 | 1등급",
+    grade: "이과",
     time: "24시간 전",
     content: "",
     image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
@@ -88,159 +73,108 @@ const studyVerificationPosts: Post[] = [
     comments: 148,
     shares: 18,
     liked: false,
+    commentsList: [],
   },
 ];
 
-const gradeGroupPosts: Post[] = [
-  {
-    id: "4",
-    author: "아구몬",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    grade: "문과 | 5등급",
-    time: "14시간 전",
-    content: "오운완 ♥",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    likes: 15,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-  {
-    id: "5",
-    author: "열혈",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "이과 | 1등급",
-    time: "24시간 전",
-    content: "",
-    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
-    likes: 148,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-];
 
-const questionHelpPosts: Post[] = [
-  {
-    id: "7",
-    author: "아구몬",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    grade: "문과 | 5등급",
-    time: "14시간 전",
-    content: "오운완 ♥",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    likes: 15,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-  {
-    id: "8",
-    author: "열혈",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    grade: "이과 | 1등급",
-    time: "24시간 전",
-    content: "",
-    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
-    likes: 148,
-    comments: 148,
-    shares: 18,
-    liked: false,
-  },
-];
 
 export default function CommunityScreen() {
-  const { t, translateText, language } = useLanguage();
+  const { language } = useLanguage();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>(studyVerificationPosts);
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showPostDetail, setShowPostDetail] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [translationCache, setTranslationCache] = useState<Record<string, Post[]>>({});
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [newPostContent, setNewPostContent] = useState("");
+  const [newComment, setNewComment] = useState("");
 
   const tabs = [
-    '오늘의 공부 인증',
-    '내 등급 모임',
-    '문제질문하기'
+    language === 'ko' ? '오늘의 공부 인증' : "Today's Study Verification",
+    language === 'ko' ? '내 등급 모임' : 'My Grade Group',
+    language === 'ko' ? '문제질문하기' : 'Ask Questions'
   ];
 
-  const getCurrentPosts = useCallback(() => {
-    switch (activeTab) {
-      case 0:
-        return studyVerificationPosts;
-      case 1:
-        return gradeGroupPosts;
-      case 2:
-        return questionHelpPosts;
-      default:
-        return studyVerificationPosts;
-    }
-  }, [activeTab]);
+  const handleLikePost = (postId: string) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === postId 
+          ? { ...post, liked: !post.liked, likes: post.liked ? post.likes - 1 : post.likes + 1 }
+          : post
+      )
+    );
+  };
 
-  const translatePosts = useCallback(async () => {
-    const currentPosts = getCurrentPosts();
-    const cacheKey = `${activeTab}-${language}`;
+  const handleAddComment = () => {
+    if (!newComment.trim() || !selectedPost) return;
     
-    if (language === 'ko') {
-      setFilteredPosts(currentPosts);
-      return;
-    }
+    const comment: Comment = {
+      id: `c${Date.now()}`,
+      author: language === 'ko' ? '나' : 'Me',
+      avatar: 'https://i.pravatar.cc/150?img=10',
+      time: language === 'ko' ? '방금' : 'Just now',
+      content: newComment,
+      likes: 0,
+      liked: false,
+    };
+    
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === selectedPost.id 
+          ? { 
+              ...post, 
+              comments: post.comments + 1,
+              commentsList: [...(post.commentsList || []), comment]
+            }
+          : post
+      )
+    );
+    
+    setSelectedPost(prev => prev ? {
+      ...prev,
+      comments: prev.comments + 1,
+      commentsList: [...(prev.commentsList || []), comment]
+    } : null);
+    
+    setNewComment('');
+  };
 
-    // Check if we have cached translations for this tab and language
-    if (translationCache[cacheKey]) {
-      setFilteredPosts(translationCache[cacheKey]);
-      return;
-    }
-
-    setIsTranslating(true);
-    try {
-      const translatedPosts = await Promise.all(
-        currentPosts.map(async (post) => {
-          const [translatedTitle, translatedContent, translatedAuthor, translatedGrade, translatedCategory] = await Promise.all([
-            translateText(post.title || '', 'en'),
-            translateText(post.content, 'en'),
-            translateText(post.author, 'en'),
-            translateText(post.grade, 'en'),
-            post.category ? translateText(post.category, 'en') : Promise.resolve('')
-          ]);
-          
-          return {
-            ...post,
-            title: translatedTitle,
-            content: translatedContent,
-            author: translatedAuthor,
-            grade: translatedGrade,
-            category: translatedCategory,
-          };
-        })
+  const handleCreatePost = () => {
+    if (!newPostContent.trim()) {
+      Alert.alert(
+        language === 'ko' ? '알림' : 'Notice',
+        language === 'ko' ? '내용을 입력해주세요' : 'Please enter content'
       );
-      
-      // Cache the translated posts
-      setTranslationCache(prev => ({
-        ...prev,
-        [cacheKey]: translatedPosts
-      }));
-      
-      setFilteredPosts(translatedPosts);
-    } catch (error) {
-      console.error('Translation failed:', error);
-      setFilteredPosts(currentPosts);
-    } finally {
-      setIsTranslating(false);
+      return;
     }
-  }, [language, translateText, activeTab, getCurrentPosts, translationCache]);
-
-  useEffect(() => {
-    translatePosts();
-  }, [translatePosts]);
-
-  const handlePostPress = (post: Post) => {
-    setSelectedPost(post);
-    setShowPostDetail(true);
+    
+    const newPost: Post = {
+      id: `p${Date.now()}`,
+      author: language === 'ko' ? '나' : 'Me',
+      avatar: 'https://i.pravatar.cc/150?img=10',
+      grade: language === 'ko' ? '문과' : 'Liberal Arts',
+      time: language === 'ko' ? '방금' : 'Just now',
+      content: newPostContent,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      liked: false,
+      commentsList: [],
+    };
+    
+    setPosts([newPost, ...posts]);
+    setNewPostContent('');
+    setShowCreatePost(false);
   };
 
 
+
+  const handlePostPress = (post: Post) => {
+    const fullPost = posts.find(p => p.id === post.id) || post;
+    setSelectedPost(fullPost);
+    setShowPostDetail(true);
+  };
 
   const renderPost = (post: Post) => (
     <TouchableOpacity 
@@ -251,26 +185,31 @@ export default function CommunityScreen() {
       <View style={styles.postHeader}>
         <Image source={{ uri: post.avatar }} style={styles.avatar} />
         <View style={styles.postInfo}>
-          <Text style={styles.authorName}>{post.author} | {post.grade}</Text>
+          <Text style={styles.authorName}>{post.author} | {post.grade} | {language === 'ko' ? '5등급' : 'Grade 5'}</Text>
           <Text style={styles.postTime}>{post.time}</Text>
         </View>
+        <TouchableOpacity>
+          <MoreHorizontal size={20} color="#8E8E93" />
+        </TouchableOpacity>
       </View>
       
       {post.image && (
-        <Image source={{ uri: post.image }} style={styles.postImage} />
+        <View style={styles.postImageContainer}>
+          <Image source={{ uri: post.image }} style={styles.postImage} />
+        </View>
       )}
       
       {post.content ? (
-        <View style={styles.postContentWrapper}>
-          <Text style={styles.postContent}>{post.content}</Text>
-          <MoreHorizontal size={16} color="#000000" />
-        </View>
+        <Text style={styles.postContent}>{post.content}</Text>
       ) : null}
       
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => handleLikePost(post.id)}
+        >
           <Heart 
-            size={18} 
+            size={20} 
             color={post.liked ? "#FF3B30" : "#8E8E93"} 
             fill={post.liked ? "#FF3B30" : "none"}
           />
@@ -279,13 +218,16 @@ export default function CommunityScreen() {
           </Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.actionButton}>
-          <MessageCircle size={18} color="#8E8E93" />
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => handlePostPress(post)}
+        >
+          <MessageCircle size={20} color="#8E8E93" />
           <Text style={styles.actionText}>{post.comments}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.actionButton}>
-          <Repeat2 size={18} color="#8E8E93" />
+          <Share2 size={20} color="#8E8E93" />
           <Text style={styles.actionText}>{post.shares}</Text>
         </TouchableOpacity>
       </View>
@@ -293,9 +235,9 @@ export default function CommunityScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>커뮤니티</Text>
+        <Text style={styles.title}>{language === 'ko' ? '커뮤니티' : 'Community'}</Text>
         <TouchableOpacity>
           <Search size={24} color="#000000" />
         </TouchableOpacity>
@@ -320,15 +262,13 @@ export default function CommunityScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {isTranslating ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>{t('loading')}</Text>
-          </View>
-        ) : (
-          <>
-            {filteredPosts.map(renderPost)}
-          </>
-        )}
+        {posts.filter(post => {
+          // Filter posts based on active tab
+          if (activeTab === 0) return true; // Show all for study verification
+          if (activeTab === 1) return post.grade === (language === 'ko' ? '문과' : 'Liberal Arts');
+          if (activeTab === 2) return post.content.includes('?');
+          return true;
+        }).map(renderPost)}
       </ScrollView>
 
       <Modal
@@ -350,7 +290,12 @@ export default function CommunityScreen() {
           </View>
           
           {selectedPost && (
-            <ScrollView style={styles.modalContent}>
+            <KeyboardAvoidingView 
+              style={styles.modalContent}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+            >
+              <ScrollView style={styles.modalScrollContent} contentContainerStyle={{ paddingHorizontal: 20 }}>
               <View style={styles.postDetailHeader}>
                 <Image source={{ uri: selectedPost.avatar }} style={styles.avatar} />
                 <View style={styles.postInfo}>
@@ -403,9 +348,95 @@ export default function CommunityScreen() {
                 ))}
               </View>
             </ScrollView>
+            
+            {/* Comment Input */}
+            <View style={styles.commentInputContainer}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder={language === 'ko' ? '댓글을 입력하세요...' : 'Write a comment...'}
+                placeholderTextColor="#8E8E93"
+                value={newComment}
+                onChangeText={setNewComment}
+                multiline
+              />
+              <TouchableOpacity 
+                style={styles.sendButton}
+                onPress={handleAddComment}
+              >
+                <Send size={20} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
           )}
         </View>
       </Modal>
+
+      {/* Create Post Modal */}
+      <Modal
+        visible={showCreatePost}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <View style={[styles.modalContainer, { paddingTop: insets.top }]}>
+          <View style={styles.createPostHeader}>
+            <TouchableOpacity onPress={() => setShowCreatePost(false)}>
+              <X size={24} color="#000000" />
+            </TouchableOpacity>
+            <Text style={styles.createPostTitle}>
+              {language === 'ko' ? '새 게시물' : 'New Post'}
+            </Text>
+            <TouchableOpacity onPress={handleCreatePost}>
+              <Text style={styles.postButton}>
+                {language === 'ko' ? '게시' : 'Post'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          <KeyboardAvoidingView 
+            style={styles.createPostContent}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            <View style={styles.createPostAuthor}>
+              <Image 
+                source={{ uri: 'https://i.pravatar.cc/150?img=10' }} 
+                style={styles.avatar} 
+              />
+              <View>
+                <Text style={styles.authorName}>
+                  {language === 'ko' ? '나' : 'Me'} | {language === 'ko' ? '문과' : 'Liberal Arts'} | {language === 'ko' ? '5등급' : 'Grade 5'}
+                </Text>
+              </View>
+            </View>
+            
+            <TextInput
+              style={styles.postTextInput}
+              placeholder={language === 'ko' ? '오늘의 공부를 공유해주세요...' : 'Share your study today...'}
+              placeholderTextColor="#8E8E93"
+              value={newPostContent}
+              onChangeText={setNewPostContent}
+              multiline
+              autoFocus
+            />
+            
+            <View style={styles.createPostActions}>
+              <TouchableOpacity style={styles.mediaButton}>
+                <Camera size={24} color="#007AFF" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.mediaButton}>
+                <ImageIcon size={24} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => setShowCreatePost(true)}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -490,9 +521,11 @@ const styles = StyleSheet.create({
   },
   postCard: {
     backgroundColor: "#FFFFFF",
-    marginBottom: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    marginBottom: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
   },
   postTitle: {
     fontSize: 16,
@@ -542,12 +575,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  postImage: {
-    width: width - 40,
-    height: width - 40,
-    borderRadius: 12,
-    backgroundColor: "#8E8E93",
+  postImageContainer: {
     marginVertical: 12,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  postImage: {
+    width: width - 36,
+    height: width - 36,
+    backgroundColor: "#8E8E93",
   },
   postContentContainer: {
     marginBottom: 12,
@@ -598,7 +636,6 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   postDetailHeader: {
     flexDirection: "row",
@@ -720,5 +757,99 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#8E8E93',
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 90,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  fabText: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: '400',
+  },
+  modalScrollContent: {
+    flex: 1,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    backgroundColor: '#FFFFFF',
+  },
+  commentInput: {
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 100,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 20,
+    fontSize: 14,
+    color: '#000000',
+    marginRight: 8,
+  },
+  sendButton: {
+    padding: 8,
+  },
+  createPostHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  createPostTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  postButton: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  createPostContent: {
+    flex: 1,
+  },
+  createPostAuthor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  postTextInput: {
+    flex: 1,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#000000',
+    textAlignVertical: 'top',
+  },
+  createPostActions: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    gap: 20,
+  },
+  mediaButton: {
+    padding: 8,
   },
 });
