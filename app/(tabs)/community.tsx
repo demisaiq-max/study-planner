@@ -5,7 +5,7 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { Search } from "lucide-react-native";
 import { useLanguage } from "@/hooks/language-context";
 import { useRouter } from "expo-router";
@@ -14,7 +14,6 @@ import { useRouter } from "expo-router";
 
 export default function CommunityScreen() {
   const { language } = useLanguage();
-  const insets = useSafeAreaInsets();
   const router = useRouter();
 
   const tabs = [
@@ -43,7 +42,7 @@ export default function CommunityScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{language === 'ko' ? '커뮤니티' : 'Community'}</Text>
         <TouchableOpacity>

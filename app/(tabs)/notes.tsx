@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 
 import { Plus, Search, Calendar, Clock, CheckCircle, Trash2, Edit3, X } from "lucide-react-native";
 import { useStudyStore } from "@/hooks/study-store";
@@ -119,7 +119,7 @@ export default function NotesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('studyNotes') || t('notes')}</Text>
         <TouchableOpacity style={styles.addButton} onPress={openAddModal}>
@@ -362,7 +362,7 @@ export default function NotesScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -326,11 +326,15 @@ export default function HomeScreen() {
           </View>
           
           <View style={styles.tasksList}>
-            {priorityTasks?.slice(0, 3).map((task: { title: string; description?: string }, index: number) => (
+            {priorityTasks?.slice(0, 3).map((task: { title: string; description?: string; priority?: string }, index: number) => (
               <View key={index} style={styles.priorityTaskItem}>
                 <View style={styles.priorityTaskContent}>
                   <View style={styles.priorityCheckbox}>
-                    <View style={styles.priorityDot} />
+                    <View style={[styles.priorityDot, 
+                      task.priority === 'high' && { backgroundColor: '#FF3B30' },
+                      task.priority === 'medium' && { backgroundColor: '#FF9500' },
+                      task.priority === 'low' && { backgroundColor: '#34C759' }
+                    ]} />
                   </View>
                   <View style={styles.priorityTaskText}>
                     <Text style={styles.priorityTaskTitle}>{task.title}</Text>

@@ -282,7 +282,12 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
   }, []);
 
   const t = useCallback((key: string): string => {
-    return translations[language][key] || key;
+    try {
+      return translations[language][key] || key;
+    } catch (error) {
+      console.error('Translation error for key:', key, error);
+      return key;
+    }
   }, [language]);
 
   const translateText = useCallback(async (text: string, targetLanguage?: Language): Promise<string> => {
@@ -308,7 +313,18 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse translation response:', responseText);
+        return text;
+      }
       return data.completion || text;
     } catch (error) {
       console.error('Translation failed:', error);
