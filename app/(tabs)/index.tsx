@@ -12,7 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, User, X, Calendar, ChevronDown, Check, Edit2, Trash2 } from "lucide-react-native";
+import { Plus, User, X, Calendar, ChevronDown, Check, Edit2, Trash2, ArrowUpRight } from "lucide-react-native";
 import { router } from "expo-router";
 import CircularProgress from "@/components/CircularProgress";
 import DayCard from "@/components/DayCard";
@@ -181,30 +181,61 @@ export default function HomeScreen() {
 
         {/* Study Progress Card */}
         <View style={styles.timerCard}>
-          <Text style={styles.timerTitle}>{t('timerTitle')}</Text>
+          <TouchableOpacity style={styles.mockExamHeader} activeOpacity={0.7}>
+            <Text style={styles.mockExamTitle}>실시간 모의고사 채점하기</Text>
+            <ArrowUpRight size={20} color="#007AFF" />
+          </TouchableOpacity>
           
           <View style={styles.progressSection}>
             <View style={styles.leftTextContainer}>
-              <Text style={styles.leftText}>{user?.name || '아구몬'}님의</Text>
+              <Text style={styles.leftText}>{user?.name || '아구몬'} 님의</Text>
               <Text style={styles.leftText}>현재 성적</Text>
             </View>
             
-            <View style={styles.centerRingsContainer}>
-              <CircularProgress 
-                percentage={progressPercentage}
-                size={120}
-                strokeWidth={6}
-                showMultipleRings={true}
-                centerText={selectedSubject ? (subjectGrades?.[selectedSubject]?.toString() || "미정") : "2"}
-                selectedSubject={selectedSubject}
-                subjectGrades={subjectGrades}
-              />
+            <View style={styles.circlesContainer}>
+              <View style={styles.circleItem}>
+                <View style={styles.circleWrapper}>
+                  <CircularProgress 
+                    percentage={89}
+                    size={80}
+                    strokeWidth={8}
+                    color="#333333"
+                    centerText="89"
+                  />
+                </View>
+                <Text style={styles.circleLabel}>목표 백분위</Text>
+              </View>
+              
+              <View style={styles.circleItem}>
+                <View style={styles.circleWrapper}>
+                  <CircularProgress 
+                    percentage={50}
+                    size={80}
+                    strokeWidth={8}
+                    color="#E5E5EA"
+                    centerText="50"
+                  />
+                </View>
+                <Text style={styles.circleLabel}>평균 백분위</Text>
+              </View>
+              
+              <View style={styles.circleItem}>
+                <View style={styles.circleWrapper}>
+                  <CircularProgress 
+                    percentage={68}
+                    size={80}
+                    strokeWidth={8}
+                    color="#666666"
+                    centerText="68"
+                  />
+                </View>
+                <Text style={styles.circleLabel}>최근 백분위</Text>
+              </View>
             </View>
             
-            <View style={styles.rightTextContainer}>
-              <Text style={styles.rightTextLarge}>2</Text>
-              <Text style={styles.rightText}>평균 등급</Text>
-            </View>
+            <TouchableOpacity style={styles.koreanButton} activeOpacity={0.7}>
+              <Text style={styles.koreanButtonText}>아</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -882,47 +913,70 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  timerTitle: {
-    fontSize: 14,
-    color: "#8E8E93",
+  mockExamHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#F2F2F7",
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 20,
-    textAlign: "center",
+  },
+  mockExamTitle: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#000000",
   },
   progressSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
+    position: "relative",
   },
   leftTextContainer: {
-    flex: 1,
-    alignItems: "flex-start",
+    position: "absolute",
+    left: 0,
+    top: "50%",
+    transform: [{ translateY: -20 }],
+    zIndex: 1,
   },
   leftText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     color: "#000000",
     lineHeight: 20,
   },
-  centerRingsContainer: {
-    flex: 1,
-    alignItems: "center",
+  circlesContainer: {
+    flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    paddingHorizontal: 10,
   },
-  rightTextContainer: {
-    flex: 1,
-    alignItems: "flex-end",
+  circleItem: {
+    alignItems: "center",
   },
-  rightTextLarge: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#000000",
-    lineHeight: 36,
+  circleWrapper: {
+    marginBottom: 8,
   },
-  rightText: {
-    fontSize: 14,
-    color: "#8E8E93",
-    marginTop: 4,
+  circleLabel: {
+    fontSize: 11,
+    color: "#666666",
+    textAlign: "center",
+  },
+  koreanButton: {
+    position: "absolute",
+    right: 0,
+    top: "50%",
+    transform: [{ translateY: -20 }],
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  koreanButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
   dDaySection: {
     marginTop: 20,
