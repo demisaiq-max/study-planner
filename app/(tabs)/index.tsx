@@ -865,19 +865,19 @@ const styles = StyleSheet.create({
 
   dDaySection: {
     marginTop: 20,
-    paddingLeft: 20,
+    paddingHorizontal: 20,
   },
   dDayScroll: {
-    paddingRight: 20,
+    flexDirection: "row",
+    gap: 12,
   },
   addDDayCard: {
-    width: width * 0.4,
+    width: (width - 40 - 12) / 2,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 12,
     borderWidth: 1,
     borderColor: "#E5E5EA",
     borderStyle: "dashed",

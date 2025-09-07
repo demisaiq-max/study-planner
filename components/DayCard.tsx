@@ -25,11 +25,10 @@ export default function DayCard({ title, daysLeft, date }: DayCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    width: width * 0.4,
+    width: (width - 40 - 12) / 2,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
-    marginRight: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
