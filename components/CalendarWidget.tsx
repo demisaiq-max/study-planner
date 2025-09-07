@@ -1,11 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useRouter } from 'expo-router';
 
 interface CalendarWidgetProps {
   currentDate: Date;
 }
 
 export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
+  const router = useRouter();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const date = currentDate.getDate();
@@ -34,7 +36,11 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
   const weekDates = getWeekDates();
   
   return (
-    <View style={styles.container}>
+    <TouchableOpacity 
+      style={styles.container}
+      onPress={() => router.push('/calendar')}
+      activeOpacity={0.8}
+    >
       <View style={styles.header}>
         <Text style={styles.monthYear}>{year}년 {monthNames[month]}</Text>
       </View>
@@ -54,7 +60,7 @@ export default function CalendarWidget({ currentDate }: CalendarWidgetProps) {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
