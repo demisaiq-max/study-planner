@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ import { Stack } from "expo-router";
 import { Edit2, Trash2, Plus, X, Calendar } from "lucide-react-native";
 import { useStudyStore } from "@/hooks/study-store";
 import { useLanguage } from "@/hooks/language-context";
+import FormattedDateInput from "@/components/FormattedDateInput";
 
 export default function ExamManagementScreen() {
   const { dDays, addDDay, updateDDay, removeDDay } = useStudyStore();
@@ -32,17 +33,31 @@ export default function ExamManagementScreen() {
   const [editExamDate, setEditExamDate] = useState("");
   const [editExamDescription, setEditExamDescription] = useState("");
   const [editExamPriority, setEditExamPriority] = useState<"high" | "medium" | "low">("medium");
+  
+  // Calculate days left for display
+  const calculateDaysLeft = (dateString: string) => {
+    const examDate = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    examDate.setHours(0, 0, 0, 0);
+    const timeDiff = examDate.getTime() - today.getTime();
+    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysLeft;
+  };
 
   const handleAddExam = () => {
     if (!newExamTitle.trim() || !newExamDate.trim()) {
       Alert.alert(t('error'), t('examFormError'));
       return;
     }
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newExamDate)) {
+      Alert.alert(t('error'), 'Please enter date in YYYY-MM-DD format');
+      return;
+    }
 
-    const examDate = new Date(newExamDate);
-    const today = new Date();
-    const timeDiff = examDate.getTime() - today.getTime();
-    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const daysLeft = calculateDaysLeft(newExamDate);
 
     if (daysLeft < 0) {
       Alert.alert(t('error'), t('futureDateError'));
@@ -69,11 +84,14 @@ export default function ExamManagementScreen() {
       Alert.alert(t('error'), t('examFormError'));
       return;
     }
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(editExamDate)) {
+      Alert.alert(t('error'), 'Please enter date in YYYY-MM-DD format');
+      return;
+    }
 
-    const examDate = new Date(editExamDate);
-    const today = new Date();
-    const timeDiff = examDate.getTime() - today.getTime();
-    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const daysLeft = calculateDaysLeft(editExamDate);
 
     if (daysLeft < 0) {
       Alert.alert(t('error'), t('futureDateError'));
@@ -180,9 +198,9 @@ export default function ExamManagementScreen() {
                     <View style={styles.daysContainer}>
                       <Text style={[
                         styles.daysLeft,
-                        exam.daysLeft <= 30 && styles.daysLeftUrgent
+                        calculateDaysLeft(exam.date) <= 30 && styles.daysLeftUrgent
                       ]}>
-                        D-{exam.daysLeft}
+                        D-{calculateDaysLeft(exam.date)}
                       </Text>
                     </View>
                   </View>
@@ -261,11 +279,10 @@ export default function ExamManagementScreen() {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>{t('examDate')}</Text>
-                  <TextInput
-                    style={styles.textInput}
+                  <FormattedDateInput
                     value={newExamDate}
                     onChangeText={setNewExamDate}
-                    placeholder={t('examDatePlaceholder')}
+                    placeholder="YYYY-MM-DD"
                     placeholderTextColor="#8E8E93"
                   />
                 </View>
@@ -360,11 +377,10 @@ export default function ExamManagementScreen() {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>{t('examDate')}</Text>
-                  <TextInput
-                    style={styles.textInput}
+                  <FormattedDateInput
                     value={editExamDate}
                     onChangeText={setEditExamDate}
-                    placeholder={t('examDatePlaceholder')}
+                    placeholder="YYYY-MM-DD"
                     placeholderTextColor="#8E8E93"
                   />
                 </View>

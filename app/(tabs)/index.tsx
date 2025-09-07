@@ -21,6 +21,7 @@ import TaskItem from "@/components/TaskItem";
 import { useStudyStore } from "@/hooks/study-store";
 import { useUser } from "@/hooks/user-context";
 import { useLanguage } from "@/hooks/language-context";
+import FormattedDateInput from "@/components/FormattedDateInput";
 
 const { width } = Dimensions.get("window");
 
@@ -99,9 +100,17 @@ export default function HomeScreen() {
       Alert.alert(t('error'), t('examFormError'));
       return;
     }
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newExamDate)) {
+      Alert.alert(t('error'), 'Please enter date in YYYY-MM-DD format');
+      return;
+    }
 
     const examDate = new Date(newExamDate);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    examDate.setHours(0, 0, 0, 0);
     const timeDiff = examDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
@@ -443,11 +452,10 @@ export default function HomeScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>{t('examDate')}</Text>
-                <TextInput
-                  style={styles.textInput}
+                <FormattedDateInput
                   value={newExamDate}
                   onChangeText={setNewExamDate}
-                  placeholder={t('examDatePlaceholder')}
+                  placeholder="YYYY-MM-DD"
                   placeholderTextColor="#8E8E93"
                 />
               </View>
