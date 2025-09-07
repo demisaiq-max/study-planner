@@ -14,7 +14,7 @@ import {
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Search, Heart, MessageCircle, Share2, ChevronLeft, MoreHorizontal, Send, Camera, Image as ImageIcon, X } from "lucide-react-native";
+import { Search, Heart, MessageCircle, Eye, ChevronLeft, MoreHorizontal, Send, Camera, Image as ImageIcon, X, ChevronDown } from "lucide-react-native";
 import { useLanguage } from "@/hooks/language-context";
 
 const { width } = Dimensions.get('window');
@@ -24,6 +24,7 @@ interface Post {
   author: string;
   avatar: string;
   grade: string;
+  level: string;
   time: string;
   title?: string;
   content: string;
@@ -31,9 +32,10 @@ interface Post {
   image?: string;
   likes: number;
   comments: number;
-  shares: number;
+  views: number;
   liked: boolean;
   commentsList?: Comment[];
+  type: 'study' | 'discussion' | 'question';
 }
 
 interface Comment {
@@ -52,28 +54,133 @@ const initialPosts: Post[] = [
     author: "아구몬",
     avatar: "https://i.pravatar.cc/150?img=1",
     grade: "문과",
+    level: "5등급",
     time: "14시간 전",
     content: "오운완 ♥",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     likes: 15,
     comments: 148,
-    shares: 18,
+    views: 18,
     liked: false,
     commentsList: [],
+    type: 'study',
   },
   {
     id: "2",
     author: "열혈",
     avatar: "https://i.pravatar.cc/150?img=2",
     grade: "이과",
+    level: "1등급",
     time: "24시간 전",
     content: "",
     image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
     likes: 148,
     comments: 148,
-    shares: 18,
+    views: 18,
     liked: false,
     commentsList: [],
+    type: 'study',
+  },
+  {
+    id: "3",
+    author: "아구몬",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    grade: "문과",
+    level: "5등급",
+    time: "14시간 전",
+    title: "학원다니 실력이 늘까?",
+    content: "학원이 너무 많아서 가지 않으면 어떨까 걱정이 되네요?",
+    likes: 20,
+    comments: 105,
+    views: 26,
+    liked: false,
+    commentsList: [],
+    type: 'discussion',
+  },
+  {
+    id: "4",
+    author: "베이",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    grade: "문과",
+    level: "4등급",
+    time: "24시간 전",
+    title: "수능 영어 안녕하다.",
+    content: "모든 힘내자!",
+    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
+    likes: 15,
+    comments: 148,
+    views: 18,
+    liked: false,
+    commentsList: [],
+    type: 'discussion',
+  },
+  {
+    id: "5",
+    author: "아구몬",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    grade: "문과",
+    level: "5등급",
+    time: "14시간 전",
+    title: "2024년 9월 모평수학 5번 문제 모르겠어요ㅠㅠㅠ",
+    content: "계산 4",
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop",
+    likes: 20,
+    comments: 105,
+    views: 26,
+    liked: false,
+    commentsList: [],
+    type: 'question',
+  },
+  {
+    id: "6",
+    author: "베이",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    grade: "문과",
+    level: "4등급",
+    time: "24시간 전",
+    title: "2022년 3월 모평 사회문화 16번 도와주세요!!!",
+    content: "계산 도와줘",
+    image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=400&h=300&fit=crop",
+    likes: 15,
+    comments: 148,
+    views: 18,
+    liked: false,
+    commentsList: [],
+    type: 'question',
+  },
+  {
+    id: "7",
+    author: "민준",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    grade: "문과",
+    level: "2등급",
+    time: "24시간 전",
+    title: "이번 중간 끝나면 먹고 싶은거 잔뜩...",
+    content: "나는 마라탕이 좋고 고기가 좋고 고기가 좋고 음식이 좋고...",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+    likes: 220,
+    comments: 225,
+    views: 112,
+    liked: false,
+    commentsList: [],
+    type: 'discussion',
+  },
+  {
+    id: "8",
+    author: "민준",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    grade: "문과",
+    level: "2등급",
+    time: "24시간 전",
+    title: "예드라. 수학 28번 계산하지 않았나?",
+    content: "수학 성적을 좋아 하자",
+    image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop",
+    likes: 220,
+    comments: 225,
+    views: 112,
+    liked: false,
+    commentsList: [],
+    type: 'question',
   },
 ];
 
@@ -96,6 +203,19 @@ export default function CommunityScreen() {
     language === 'ko' ? '문제질문하기' : 'Ask Questions'
   ];
 
+  const discussionFilters = [
+    language === 'ko' ? '추천순' : 'Recommended',
+    language === 'ko' ? '인기' : 'Popular',
+    language === 'ko' ? '고민' : 'Concerns'
+  ];
+
+  const questionFilters = [
+    language === 'ko' ? '추천순' : 'Recommended'
+  ];
+
+  const [selectedDiscussionFilter, setSelectedDiscussionFilter] = useState(0);
+  const [selectedQuestionFilter, setSelectedQuestionFilter] = useState(0);
+
   const handleLikePost = (postId: string) => {
     setPosts(prevPosts => 
       prevPosts.map(post => 
@@ -104,6 +224,41 @@ export default function CommunityScreen() {
           : post
       )
     );
+  };
+
+  const getFilteredPosts = () => {
+    let filtered = posts;
+    
+    if (activeTab === 0) {
+      // Study verification posts
+      filtered = posts.filter(post => post.type === 'study');
+    } else if (activeTab === 1) {
+      // Grade group discussions
+      filtered = posts.filter(post => post.type === 'discussion');
+      
+      // Apply discussion filters
+      if (selectedDiscussionFilter === 0) {
+        // Recommended - sort by likes
+        filtered = filtered.sort((a, b) => b.likes - a.likes);
+      } else if (selectedDiscussionFilter === 1) {
+        // Popular - sort by views
+        filtered = filtered.sort((a, b) => b.views - a.views);
+      } else if (selectedDiscussionFilter === 2) {
+        // Concerns - filter posts with question marks
+        filtered = filtered.filter(post => post.content.includes('?') || (post.title && post.title.includes('?')));
+      }
+    } else if (activeTab === 2) {
+      // Question posts
+      filtered = posts.filter(post => post.type === 'question');
+      
+      // Apply question filters
+      if (selectedQuestionFilter === 0) {
+        // Recommended - sort by likes
+        filtered = filtered.sort((a, b) => b.likes - a.likes);
+      }
+    }
+    
+    return filtered;
   };
 
   const handleAddComment = () => {
@@ -154,13 +309,15 @@ export default function CommunityScreen() {
       author: language === 'ko' ? '나' : 'Me',
       avatar: 'https://i.pravatar.cc/150?img=10',
       grade: language === 'ko' ? '문과' : 'Liberal Arts',
+      level: language === 'ko' ? '5등급' : 'Grade 5',
       time: language === 'ko' ? '방금' : 'Just now',
       content: newPostContent,
       likes: 0,
       comments: 0,
-      shares: 0,
+      views: 0,
       liked: false,
       commentsList: [],
+      type: 'study',
     };
     
     setPosts([newPost, ...posts]);
@@ -176,63 +333,117 @@ export default function CommunityScreen() {
     setShowPostDetail(true);
   };
 
-  const renderPost = (post: Post) => (
-    <TouchableOpacity 
-      key={post.id} 
-      style={styles.postCard}
-      onPress={() => handlePostPress(post)}
-    >
-      <View style={styles.postHeader}>
-        <Image source={{ uri: post.avatar }} style={styles.avatar} />
-        <View style={styles.postInfo}>
-          <Text style={styles.authorName}>{post.author} | {post.grade} | {language === 'ko' ? '5등급' : 'Grade 5'}</Text>
-          <Text style={styles.postTime}>{post.time}</Text>
-        </View>
-        <TouchableOpacity>
-          <MoreHorizontal size={20} color="#8E8E93" />
-        </TouchableOpacity>
-      </View>
-      
-      {post.image && (
-        <View style={styles.postImageContainer}>
-          <Image source={{ uri: post.image }} style={styles.postImage} />
-        </View>
-      )}
-      
-      {post.content ? (
-        <Text style={styles.postContent}>{post.content}</Text>
-      ) : null}
-      
-      <View style={styles.postActions}>
+  const renderPost = (post: Post) => {
+    if (activeTab === 0) {
+      // Study verification post layout
+      return (
         <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={() => handleLikePost(post.id)}
-        >
-          <Heart 
-            size={20} 
-            color={post.liked ? "#FF3B30" : "#8E8E93"} 
-            fill={post.liked ? "#FF3B30" : "none"}
-          />
-          <Text style={[styles.actionText, post.liked && styles.actionTextActive]}>
-            {post.likes}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.actionButton}
+          key={post.id} 
+          style={styles.studyPostCard}
           onPress={() => handlePostPress(post)}
         >
-          <MessageCircle size={20} color="#8E8E93" />
-          <Text style={styles.actionText}>{post.comments}</Text>
+          <View style={styles.postHeader}>
+            <Image source={{ uri: post.avatar }} style={styles.avatar} />
+            <View style={styles.postInfo}>
+              <Text style={styles.authorName}>{post.author} | {post.grade} | {post.level}</Text>
+              <Text style={styles.postTime}>{post.time}</Text>
+            </View>
+          </View>
+          
+          {post.image && (
+            <View style={styles.studyImageContainer}>
+              <Image source={{ uri: post.image }} style={styles.studyImage} />
+            </View>
+          )}
+          
+          {post.content && (
+            <Text style={styles.studyContent}>{post.content}</Text>
+          )}
+          
+          <View style={styles.studyActions}>
+            <TouchableOpacity 
+              style={styles.studyActionButton}
+              onPress={() => handleLikePost(post.id)}
+            >
+              <Heart 
+                size={16} 
+                color={post.liked ? "#FF3B30" : "#8E8E93"} 
+                fill={post.liked ? "#FF3B30" : "none"}
+              />
+              <Text style={[styles.studyActionText, post.liked && styles.actionTextActive]}>
+                {post.likes}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.studyActionButton}
+              onPress={() => handlePostPress(post)}
+            >
+              <MessageCircle size={16} color="#8E8E93" />
+              <Text style={styles.studyActionText}>{post.comments}</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.studyActionButton}>
+              <Eye size={16} color="#8E8E93" />
+              <Text style={styles.studyActionText}>{post.views}</Text>
+            </TouchableOpacity>
+          </View>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.actionButton}>
-          <Share2 size={20} color="#8E8E93" />
-          <Text style={styles.actionText}>{post.shares}</Text>
+      );
+    } else {
+      // Discussion/Question post layout
+      return (
+        <TouchableOpacity 
+          key={post.id} 
+          style={styles.discussionPostCard}
+          onPress={() => handlePostPress(post)}
+        >
+          <View style={styles.discussionHeader}>
+            <View style={styles.discussionInfo}>
+              {post.title && (
+                <Text style={styles.discussionTitle} numberOfLines={2}>
+                  {post.title}
+                </Text>
+              )}
+              {post.content && (
+                <Text style={styles.discussionContent} numberOfLines={2}>
+                  {post.content}
+                </Text>
+              )}
+            </View>
+            {post.image && (
+              <View style={styles.discussionImageContainer}>
+                <Image source={{ uri: post.image }} style={styles.discussionImage} />
+              </View>
+            )}
+          </View>
+          
+          <View style={styles.discussionFooter}>
+            <View style={styles.discussionAuthor}>
+              <Image source={{ uri: post.avatar }} style={styles.smallAvatar} />
+              <Text style={styles.discussionAuthorName}>{post.author} | {post.grade} | {post.level}</Text>
+              <Text style={styles.discussionTime}>{post.time}</Text>
+            </View>
+            
+            <View style={styles.discussionActions}>
+              <View style={styles.discussionActionItem}>
+                <Heart size={14} color="#8E8E93" />
+                <Text style={styles.discussionActionText}>{post.likes}</Text>
+              </View>
+              <View style={styles.discussionActionItem}>
+                <MessageCircle size={14} color="#8E8E93" />
+                <Text style={styles.discussionActionText}>{post.comments}</Text>
+              </View>
+              <View style={styles.discussionActionItem}>
+                <Eye size={14} color="#8E8E93" />
+                <Text style={styles.discussionActionText}>{post.views}</Text>
+              </View>
+            </View>
+          </View>
         </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+      );
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -257,18 +468,59 @@ export default function CommunityScreen() {
         ))}
       </View>
 
+      {/* Filter buttons for discussion and question tabs */}
+      {activeTab === 1 && (
+        <View style={styles.filtersContainer}>
+          {discussionFilters.map((filter, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[
+                styles.filterButton, 
+                selectedDiscussionFilter === index && styles.filterButtonActive
+              ]}
+              onPress={() => setSelectedDiscussionFilter(index)}
+            >
+              <Text style={[
+                styles.filterText, 
+                selectedDiscussionFilter === index && styles.filterTextActive
+              ]}>
+                {filter}
+              </Text>
+              <ChevronDown size={12} color={selectedDiscussionFilter === index ? "#FFFFFF" : "#8E8E93"} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {activeTab === 2 && (
+        <View style={styles.filtersContainer}>
+          {questionFilters.map((filter, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={[
+                styles.filterButton, 
+                selectedQuestionFilter === index && styles.filterButtonActive
+              ]}
+              onPress={() => setSelectedQuestionFilter(index)}
+            >
+              <Text style={[
+                styles.filterText, 
+                selectedQuestionFilter === index && styles.filterTextActive
+              ]}>
+                {filter}
+              </Text>
+              <ChevronDown size={12} color={selectedQuestionFilter === index ? "#FFFFFF" : "#8E8E93"} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {posts.filter(post => {
-          // Filter posts based on active tab
-          if (activeTab === 0) return true; // Show all for study verification
-          if (activeTab === 1) return post.grade === (language === 'ko' ? '문과' : 'Liberal Arts');
-          if (activeTab === 2) return post.content.includes('?');
-          return true;
-        }).map(renderPost)}
+        {getFilteredPosts().map(renderPost)}
       </ScrollView>
 
       <Modal
@@ -314,7 +566,7 @@ export default function CommunityScreen() {
               )}
               
               <View style={styles.postDetailActions}>
-                <Text style={styles.actionLabel}>조회 {selectedPost.shares}</Text>
+                <Text style={styles.actionLabel}>조회 {selectedPost.views}</Text>
                 <TouchableOpacity style={styles.likeButton}>
                   <Heart size={16} color="#8E8E93" />
                   <Text style={styles.likeButtonText}>{selectedPost.likes}</Text>
@@ -455,6 +707,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5EA",
+    marginTop: 0,
   },
   title: {
     fontSize: 18,
@@ -498,6 +751,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: "#FFFFFF",
     gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
   },
   filterButton: {
     flexDirection: "row",
@@ -519,7 +774,19 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: "#FFFFFF",
   },
-  postCard: {
+  studyPostCard: {
+    backgroundColor: "#FFFFFF",
+    marginBottom: 8,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  discussionPostCard: {
     backgroundColor: "#FFFFFF",
     marginBottom: 1,
     paddingVertical: 16,
@@ -563,11 +830,24 @@ const styles = StyleSheet.create({
     color: "#8E8E93",
     marginTop: 2,
   },
-  postContent: {
-    fontSize: 14,
+  studyContent: {
+    fontSize: 16,
     color: "#000000",
+    lineHeight: 22,
+    marginBottom: 12,
+    fontWeight: "500",
+  },
+  discussionTitle: {
+    fontSize: 16,
+    color: "#000000",
+    lineHeight: 22,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  discussionContent: {
+    fontSize: 14,
+    color: "#8E8E93",
     lineHeight: 20,
-    flex: 1,
   },
   postContentWrapper: {
     flexDirection: "row",
@@ -575,17 +855,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  postImageContainer: {
+  studyImageContainer: {
     marginVertical: 12,
-    borderWidth: 2,
-    borderColor: '#007AFF',
     borderRadius: 12,
     overflow: 'hidden',
   },
-  postImage: {
-    width: width - 36,
-    height: width - 36,
-    backgroundColor: "#8E8E93",
+  studyImage: {
+    width: width - 64,
+    height: width - 64,
+    backgroundColor: "#F0F0F0",
+  },
+  discussionImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginLeft: 12,
+  },
+  discussionImage: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#F0F0F0",
   },
   postContentContainer: {
     marginBottom: 12,
@@ -593,26 +883,72 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     marginLeft: 8,
   },
-  postActions: {
+  studyActions: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingTop: 8,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: "#F0F0F0",
-    marginTop: 8,
   },
-  actionButton: {
+  studyActionButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
     paddingVertical: 4,
   },
-  actionText: {
+  studyActionText: {
     fontSize: 12,
     color: "#8E8E93",
   },
   actionTextActive: {
     color: "#FF3B30",
+  },
+  discussionHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  discussionInfo: {
+    flex: 1,
+  },
+  discussionFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  discussionAuthor: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  smallAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  discussionAuthorName: {
+    fontSize: 12,
+    color: "#000000",
+    fontWeight: "500",
+    marginRight: 8,
+  },
+  discussionTime: {
+    fontSize: 12,
+    color: "#8E8E93",
+  },
+  discussionActions: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  discussionActionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  discussionActionText: {
+    fontSize: 12,
+    color: "#8E8E93",
   },
   modalContainer: {
     flex: 1,
