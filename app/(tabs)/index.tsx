@@ -62,6 +62,9 @@ export default function HomeScreen() {
   const [isPriority, setIsPriority] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showBrainDumpModal, setShowBrainDumpModal] = useState(false);
+  const [editingPriorityIndex, setEditingPriorityIndex] = useState<number | null>(null);
+  const [editingPriorityTitle, setEditingPriorityTitle] = useState("");
+  const [editingPriorityDescription, setEditingPriorityDescription] = useState("");
   const [editingBrainDumpId, setEditingBrainDumpId] = useState<string | null>(null);
   const [editingBrainDumpText, setEditingBrainDumpText] = useState("");
   const [newBrainDumpText, setNewBrainDumpText] = useState("");
@@ -300,20 +303,107 @@ export default function HomeScreen() {
           <View style={styles.tasksList}>
             {priorityTasks?.map((task: { title: string; description?: string }, index: number) => (
               <View key={index} style={styles.priorityTaskItem}>
-                <View style={styles.priorityTaskContent}>
-                  <TouchableOpacity 
-                    style={styles.priorityCheckbox}
-                    onPress={() => removePriorityTask(index)}
-                  >
-                    <View style={styles.priorityDot} />
-                  </TouchableOpacity>
-                  <View style={styles.priorityTaskText}>
-                    <Text style={styles.priorityTaskTitle}>{task.title}</Text>
-                    {task.description && (
-                      <Text style={styles.priorityTaskDescription}>{task.description}</Text>
-                    )}
+                {editingPriorityIndex === index ? (
+                  <View style={styles.editingPriorityContainer}>
+                    <View style={styles.editingPriorityInputs}>
+                      <TextInput
+                        style={styles.editingPriorityTitleInput}
+                        value={editingPriorityTitle}
+                        onChangeText={setEditingPriorityTitle}
+                        placeholder="Task title"
+                        placeholderTextColor="#8E8E93"
+                      />
+                      <TextInput
+                        style={styles.editingPriorityDescInput}
+                        value={editingPriorityDescription}
+                        onChangeText={setEditingPriorityDescription}
+                        placeholder="Description (optional)"
+                        placeholderTextColor="#8E8E93"
+                      />
+                    </View>
+                    <View style={styles.editingPriorityActions}>
+                      <TouchableOpacity 
+                        onPress={() => {
+                          const updatedTasks = [...(priorityTasks || [])];
+                          updatedTasks[index] = {
+                            title: editingPriorityTitle,
+                            description: editingPriorityDescription
+                          };
+                          // Update the priority tasks in the store
+                          // Since we don't have an updatePriorityTask method, we'll remove and re-add
+                          removePriorityTask(index);
+                          setTimeout(() => {
+                            addPriorityTask({
+                              title: editingPriorityTitle,
+                              description: editingPriorityDescription
+                            });
+                          }, 100);
+                          setEditingPriorityIndex(null);
+                          setEditingPriorityTitle("");
+                          setEditingPriorityDescription("");
+                        }}
+                        style={styles.saveEditButton}
+                      >
+                        <Check size={16} color="#34C759" />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        onPress={() => {
+                          setEditingPriorityIndex(null);
+                          setEditingPriorityTitle("");
+                          setEditingPriorityDescription("");
+                        }}
+                        style={styles.cancelEditButton}
+                      >
+                        <X size={16} color="#FF3B30" />
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
+                ) : (
+                  <View style={styles.priorityTaskContent}>
+                    <TouchableOpacity 
+                      style={styles.priorityCheckbox}
+                    >
+                      <View style={styles.priorityDot} />
+                    </TouchableOpacity>
+                    <View style={styles.priorityTaskText}>
+                      <Text style={styles.priorityTaskTitle}>{task.title}</Text>
+                      {task.description && (
+                        <Text style={styles.priorityTaskDescription}>{task.description}</Text>
+                      )}
+                    </View>
+                    <View style={styles.priorityTaskActions}>
+                      <TouchableOpacity 
+                        onPress={() => {
+                          setEditingPriorityIndex(index);
+                          setEditingPriorityTitle(task.title);
+                          setEditingPriorityDescription(task.description || "");
+                        }}
+                        style={styles.priorityEditButton}
+                      >
+                        <Edit2 size={16} color="#007AFF" />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        onPress={() => {
+                          Alert.alert(
+                            t('deletePriority'),
+                            t('deletePriorityConfirm'),
+                            [
+                              { text: t('cancel'), style: "cancel" },
+                              { 
+                                text: t('delete'), 
+                                style: "destructive",
+                                onPress: () => removePriorityTask(index)
+                              }
+                            ]
+                          );
+                        }}
+                        style={styles.priorityDeleteButton}
+                      >
+                        <Trash2 size={16} color="#FF3B30" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
               </View>
             ))}
             
@@ -1311,5 +1401,47 @@ const styles = StyleSheet.create({
   gradeOptionTextSelected: {
     color: "#007AFF",
     fontWeight: "600",
+  },
+  priorityTaskActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginLeft: "auto",
+  },
+  priorityEditButton: {
+    padding: 4,
+  },
+  priorityDeleteButton: {
+    padding: 4,
+  },
+  editingPriorityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  editingPriorityInputs: {
+    flex: 1,
+    gap: 8,
+  },
+  editingPriorityTitleInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    padding: 8,
+    fontSize: 14,
+    color: "#000000",
+    borderWidth: 1,
+    borderColor: "#007AFF",
+  },
+  editingPriorityDescInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    padding: 8,
+    fontSize: 12,
+    color: "#000000",
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+  },
+  editingPriorityActions: {
+    flexDirection: "row",
+    gap: 4,
   },
 });
