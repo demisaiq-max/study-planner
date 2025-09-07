@@ -299,9 +299,24 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.dDayScroll}
           >
+            {/* Test D-180 Card */}
+            <View style={styles.testDDayCard}>
+              <Text style={styles.testDDayLabel}>D-180</Text>
+              <Text style={styles.testDDayTitle}>수능</Text>
+              <Text style={styles.testDDayDate}>2025.11.14</Text>
+            </View>
+            
+            {/* Test D-21 Card */}
+            <View style={styles.testDDayCard}>
+              <Text style={styles.testDDayLabel}>D-21</Text>
+              <Text style={styles.testDDayTitle}>6월 모의고사</Text>
+              <Text style={styles.testDDayDate}>2025.06.03</Text>
+            </View>
+            
             {dDays?.map((dDay) => (
               <DayCard key={dDay.id} {...dDay} />
             ))}
+            
             <TouchableOpacity 
               style={styles.addDDayCard}
               onPress={() => setShowAddExamModal(true)}
@@ -869,6 +884,39 @@ const styles = StyleSheet.create({
   },
   dDayScroll: {
     paddingRight: 20,
+    gap: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  testDDayCard: {
+    width: width * 0.4,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  testDDayLabel: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#FF3B30",
+    marginBottom: 8,
+  },
+  testDDayTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#000000",
+    marginBottom: 4,
+  },
+  testDDayDate: {
+    fontSize: 12,
+    color: "#8E8E93",
   },
   addDDayCard: {
     width: width * 0.4,
@@ -877,7 +925,6 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 12,
     borderWidth: 1,
     borderColor: "#E5E5EA",
     borderStyle: "dashed",
